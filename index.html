@@ -540,7 +540,7 @@
     try{ cap.db = await window.claude.use("db"); }catch(e){ cap.db = null; }
     try{ cap.sample = await window.claude.use("sample"); }catch(e){ cap.sample = null; }
     try{ cap.downloads = await window.claude.use("downloads"); }catch(e){ cap.downloads = null; }
-    if(!cap.db){ toast("Este visor no tiene conectado el repositorio de datos."); }
+    if(!cap.db){ toast("Vista previa — puedes recorrer el diagnóstico, pero no se guardará ni generará análisis con IA."); }
   }
 
   // ---------- BUSCAR ----------
@@ -839,7 +839,6 @@
   // guardar sesion
   $("btnGuardarSesion").addEventListener("click", guardarSesion);
   async function guardarSesion(){
-    if(!cap.db){ toast("Repositorio no disponible."); return; }
     var dimsOut = {};
     DIMENSIONES.forEach(function(dm){
       var st = state.dims[dm.id];
@@ -872,6 +871,16 @@
     };
     var field = {}; field[state.fase] = payload;
     var body = Object.assign({}, base, field);
+
+    if(!cap.db){
+      // Vista previa (por ejemplo, fuera de Claude): mostramos el resultado sin guardar nada.
+      body.entrada = state.fase==="entrada" ? payload : null;
+      body.salida = state.fase==="salida" ? payload : null;
+      toast("Vista previa — este diagnóstico no se guardó (modo demostración).");
+      abrirFicha(body);
+      return;
+    }
+
     try{
       var ref = cap.db.doc("empresas/"+nit);
       var existing = await ref.get();
