@@ -100,6 +100,8 @@
   .qlist .q{font-size:12.5px; color:var(--text-muted); margin-top:3px; padding-left:13px; position:relative}
   .qlist .q::before{content:"–"; position:absolute; left:0; color:var(--border)}
   .refbase{font-size:12px; color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius:8px; padding:6px 10px; margin:8px 0 14px}
+  .qbase{display:inline-block; font-size:10.5px; font-weight:700; color:var(--accent-2); background:color-mix(in srgb, var(--accent-2) 14%, transparent); border-radius:99px; padding:1px 8px; margin-left:6px; vertical-align:middle; white-space:nowrap}
+  .levelbtn.isbase{box-shadow:0 0 0 2px var(--accent-2) inset}
   .qscore{margin:14px 0 18px; padding-top:14px; border-top:1px dashed var(--border)}
   .qscore:first-of-type{border-top:none; padding-top:0}
   .qscore .qtext{font-size:13.5px; margin-bottom:8px}
@@ -709,9 +711,10 @@
 
       var qHtml = dm.qs.map(function(q,i){
         var usaRubrica = dm.qRubrica && dm.qRubrica[i];
-        var picker = usaRubrica ? levelBtnsRubrica(dm.rubrica) : levelBtns(5);
+        var baseVal = (ref && ref.respuestas && ref.respuestas[i]!=null) ? Number(ref.respuestas[i]) : null;
+        var picker = usaRubrica ? levelBtnsRubrica(dm.rubrica, baseVal) : levelBtns(5, baseVal);
         return '<div class="qscore">'+
-          '<div class="qtext">'+(i+1)+'. '+esc(q)+'</div>'+
+          '<div class="qtext">'+(i+1)+'. '+esc(q)+(baseVal!=null?' <span class="qbase">📍 Línea base: '+baseVal+'</span>':'')+'</div>'+
           '<div class="levelpicker'+(usaRubrica?' rubrica':'')+'" id="lvlq-'+dm.id+'-'+i+'">'+picker+'</div>'+
           '</div>';
       }).join('');
@@ -757,16 +760,16 @@
     updateIdxLabels();
   }
 
-  function levelBtns(n){
+  function levelBtns(n, baseVal){
     var out = "";
-    for(var i=1;i<=n;i++){ out += '<button type="button" class="levelbtn" data-v="'+i+'">'+i+'</button>'; }
+    for(var i=1;i<=n;i++){ out += '<button type="button" class="levelbtn'+(baseVal===i?' isbase':'')+'" data-v="'+i+'">'+i+'</button>'; }
     return out;
   }
 
-  function levelBtnsRubrica(rubrica){
+  function levelBtnsRubrica(rubrica, baseVal){
     var out = "";
     for(var i=0;i<rubrica.length;i++){
-      out += '<button type="button" class="levelbtn" data-v="'+(i+1)+'">'+
+      out += '<button type="button" class="levelbtn'+(baseVal===(i+1)?' isbase':'')+'" data-v="'+(i+1)+'">'+
         '<span class="lvlnum">'+(i+1)+'</span><span class="lvltxt">'+esc(rubrica[i])+'</span></button>';
     }
     return out;
