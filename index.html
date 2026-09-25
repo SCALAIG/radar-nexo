@@ -561,7 +561,15 @@
     var box = $("buscarResultado");
     box.innerHTML = "";
     if(!nit){ box.innerHTML = '<p class="hint">Escribe al menos el NIT para buscar.</p>'; return; }
-    if(!cap.db){ box.innerHTML = '<p class="hint">Repositorio no disponible en este visor.</p>'; return; }
+    if(!cap.db){
+      box.innerHTML = '<div class="flag"><span>🔎</span><span>Vista previa: puedes recorrer el diagnóstico para el NIT <b class="mono">'+esc(nit)+'</b>, pero no quedará guardado.</span></div>'+
+        '<button class="btn" id="btnIrNueva">Iniciar diagnóstico de Fase I (vista previa)</button>';
+      $("btnIrNueva").addEventListener("click", function(){
+        $("nNit").value = nit; $("nNombre").value = nombre;
+        showView("nueva");
+      });
+      return;
+    }
     box.innerHTML = '<p class="hint">Buscando…</p>';
     try{
       var snap = await cap.db.doc("empresas/"+nit).get();
