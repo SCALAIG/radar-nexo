@@ -287,6 +287,10 @@
           <label>Justificación (para el informe consolidado)</label>
           <textarea id="brechaJust" placeholder="Por qué esta es la restricción que más limita el crecimiento de la empresa..."></textarea>
         </div>
+        <div class="field">
+          <label>Indicador de resultado del programa (para esta empresa)</label>
+          <textarea id="indicadorResultado" placeholder="Ej.: subir de nivel 2 a nivel 4 en la dimensión priorizada entre el diagnóstico de entrada y el de salida; o un indicador propio ligado a la brecha (ventas, margen, clientes nuevos, etc.)."></textarea>
+        </div>
       </div>
 
       <div class="footer-actions">
@@ -858,6 +862,7 @@
       brechaId: state._brechaId,
       brechaNombre: (DIMENSIONES.find(function(d){return d.id===state._brechaId;})||{}).nombre,
       brechaJustificacion: ($("brechaJust").value||"").trim(),
+      indicadorResultado: ($("indicadorResultado").value||"").trim(),
       contextoSector: state._contextoSector || "",
       percepcionEmpresario: ($("percEmpresario").value||"").trim()
     };
@@ -940,9 +945,11 @@
         (d.salida?'<th>Salida</th><th>Δ</th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table></div>'+
       '<div class="flag" style="margin-top:16px"><span>🎯</span><span><b>Brecha prioritaria (Fase I):</b> '+esc(d.entrada.brechaNombre)+
         (d.entrada.brechaJustificacion? ' — '+esc(d.entrada.brechaJustificacion) : '')+'</span></div>'+
-      (d.salida ? '<div class="flag" style="background:color-mix(in srgb, var(--good) 14%, transparent); border-color:color-mix(in srgb, var(--good) 40%, transparent)">'+
+      (d.entrada.indicadorResultado ? '<div class="flag" style="margin-top:8px"><span>📊</span><span><b>Indicador de resultado (Fase I):</b> '+esc(d.entrada.indicadorResultado)+'</span></div>' : '')+
+      (d.salida ? '<div class="flag" style="margin-top:8px; background:color-mix(in srgb, var(--good) 14%, transparent); border-color:color-mix(in srgb, var(--good) 40%, transparent)">'+
         '<span>✅</span><span><b>Resultado Fase IV — brecha priorizada:</b> '+esc(d.salida.brechaNombre)+
         (d.salida.brechaJustificacion? ' — '+esc(d.salida.brechaJustificacion) : '')+'</span></div>' : '')+
+      (d.salida && d.salida.indicadorResultado ? '<div class="flag" style="margin-top:8px"><span>📊</span><span><b>Indicador de resultado (Fase IV):</b> '+esc(d.salida.indicadorResultado)+'</span></div>' : '')+
       '</div>';
 
     var analisisExistente = d.analisisIA || "";
@@ -1003,9 +1010,11 @@
       datosFila("Contacto", d.contacto + (d.cargoContacto ? " — "+d.cargoContacto : ""))+
       '</tbody></table></div></div>';
 
+    var indicadorMostrar = d.salida ? d.salida.indicadorResultado : d.entrada.indicadorResultado;
     right.innerHTML = '<div class="card"><h3 style="margin-top:0">Radar de dimensiones</h3><div id="radarWrap"></div>'+
       '<div class="flag" style="margin-top:14px"><span>🎯</span><span><b>Brecha prioritaria'+(d.salida?' (Fase IV)':' (Fase I)')+':</b> '+
       esc(d.salida ? d.salida.brechaNombre : d.entrada.brechaNombre)+'</span></div>'+
+      (indicadorMostrar ? '<div class="flag" style="margin-top:8px"><span>📊</span><span><b>Indicador de resultado'+(d.salida?' (Fase IV)':' (Fase I)')+':</b> '+esc(indicadorMostrar)+'</span></div>' : '')+
       '</div>';
 
     // el radar va primero (columna izquierda / arriba en móvil): es el resultado que se quiere ver de entrada
@@ -1042,7 +1051,9 @@
       "Con base ÚNICAMENTE en esta información — no inventes cifras, hechos ni recomendaciones que no se puedan derivar de estos datos — redacta un análisis estructurado y coherente en español, en prosa (sin listas con viñetas ni markdown ni asteriscos), de entre 220 y 350 palabras en total.\n\n"+
       "DATOS POR DIMENSIÓN (nivel de 1 a 5, promedio de las respuestas a las preguntas guía de cada una):\n"+lineas+"\n\n"+
       "Brecha priorizada por el consultor en la entrada: "+(e.brechaNombre||"—")+(e.brechaJustificacion?" — justificación del consultor: \""+e.brechaJustificacion+"\"":"")+".\n"+
+      (e.indicadorResultado ? "Indicador de resultado del programa definido para esta empresa: \""+e.indicadorResultado+"\".\n" : "")+
       (s ? "Brecha priorizada en la salida: "+(s.brechaNombre||"—")+(s.brechaJustificacion?" — justificación del consultor: \""+s.brechaJustificacion+"\"":"")+".\n" : "")+
+      (s && s.indicadorResultado ? "Indicador de resultado del programa (salida): \""+s.indicadorResultado+"\".\n" : "")+
       (e.percepcionEmpresario ? "Percepción propia del empresario en la entrada, en sus palabras: \""+e.percepcionEmpresario+"\".\n" : "")+
       (s && s.percepcionEmpresario ? "Percepción propia del empresario en la salida, en sus palabras: \""+s.percepcionEmpresario+"\".\n" : "")+
       "\nEstructura la respuesta exactamente en estas secciones, en este orden, cada una como un título corto en MAYÚSCULAS seguido de dos puntos y el texto en el siguiente renglón, con una línea en blanco entre secciones: "+secciones.join(", ")+".\n\n"+
@@ -1190,23 +1201,24 @@
       kpi(brechaTop ? esc(brechaTop) : "—", "Brecha más común") +
       kpi(mejoraProm!=null ? (mejoraProm>0?"+":"")+mejoraProm : "—", "Mejora prom. en brecha priorizada");
 
-    thead.innerHTML = "<tr><th>Empresa</th><th>NIT</th><th>Sector</th><th>Municipio</th><th>Tamaño</th><th>Brecha priorizada (F1)</th><th>Fase I</th><th>Fase IV</th></tr>";
+    thead.innerHTML = "<tr><th>Empresa</th><th>NIT</th><th>Sector</th><th>Municipio</th><th>Tamaño</th><th>Brecha priorizada (F1)</th><th>Indicador de resultado (F1)</th><th>Fase I</th><th>Fase IV</th></tr>";
     tbody.innerHTML = docs.map(function(d){
       return "<tr><td>"+esc(d.nombre)+"</td><td class='mono'>"+esc(d.nit)+(d.dv?'-'+esc(d.dv):'')+"</td><td>"+esc(d.sector||"—")+"</td>"+
         "<td>"+esc(d.ciudad||"—")+"</td><td>"+esc(d.tamanoEmpresarial||"—")+"</td>"+
         "<td>"+esc(d.entrada?d.entrada.brechaNombre:"—")+"</td>"+
+        "<td>"+esc(d.entrada?(d.entrada.indicadorResultado||"—"):"—")+"</td>"+
         "<td>"+(d.entrada?'<span class="badge on">✓ '+esc(d.entrada.fecha)+'</span>':'<span class="badge">pendiente</span>')+"</td>"+
         "<td>"+(d.salida?'<span class="badge good">✓ '+esc(d.salida.fecha)+'</span>':'<span class="badge">pendiente</span>')+"</td></tr>";
     }).join("");
 
     $("btnExportConsolidado").onclick = function(){
-      var rows = [["empresa","nit","dv","sector_ciiu","actividad_especifica","municipio","empleados","rango_ingresos_2025","tamano_empresarial","contacto","cargo_contacto","brecha_f1","score_f1_prom","fecha_f1","percepcion_empresario_f1","brecha_f4","fecha_f4","percepcion_empresario_f4"]];
+      var rows = [["empresa","nit","dv","sector_ciiu","actividad_especifica","municipio","empleados","rango_ingresos_2025","tamano_empresarial","contacto","cargo_contacto","brecha_f1","indicador_resultado_f1","score_f1_prom","fecha_f1","percepcion_empresario_f1","brecha_f4","indicador_resultado_f4","fecha_f4","percepcion_empresario_f4"]];
       docs.forEach(function(d){
         var scoresF1 = d.entrada ? DIMENSIONES.map(function(dm){ return (d.entrada.dimensiones[dm.id]||{}).score; }).filter(function(v){return v!=null;}) : [];
         var prom = scoresF1.length ? (scoresF1.reduce(function(a,b){return a+b;},0)/scoresF1.length).toFixed(2) : "";
         rows.push([d.nombre, d.nit, d.dv||"", d.sector||"", d.actividadEspecifica||"", d.ciudad||"", d.empleados||"", d.rangoIngresos2025||"", d.tamanoEmpresarial||"",
-          d.contacto||"", d.cargoContacto||"", d.entrada?d.entrada.brechaNombre:"", prom, d.entrada?d.entrada.fecha:"", d.entrada?(d.entrada.percepcionEmpresario||""):"",
-          d.salida?d.salida.brechaNombre:"", d.salida?d.salida.fecha:"", d.salida?(d.salida.percepcionEmpresario||""):""]);
+          d.contacto||"", d.cargoContacto||"", d.entrada?d.entrada.brechaNombre:"", d.entrada?(d.entrada.indicadorResultado||""):"", prom, d.entrada?d.entrada.fecha:"", d.entrada?(d.entrada.percepcionEmpresario||""):"",
+          d.salida?d.salida.brechaNombre:"", d.salida?(d.salida.indicadorResultado||""):"", d.salida?d.salida.fecha:"", d.salida?(d.salida.percepcionEmpresario||""):""]);
       });
       var csv = rows.map(function(r){ return r.map(csvCell).join(","); }).join("\n");
       downloadCsv("nexo_consolidado.csv", csv);
