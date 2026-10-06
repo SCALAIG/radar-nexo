@@ -1,0 +1,12 @@
+# Configuración usada por el instalador (scripts/instalar.sh). Solo declara lo que Radar NEXO necesita.
+project_id = "radar-nexo"
+
+[auth]
+# Nadie se auto-registra: solo entran los usuarios que crea el administrador.
+enable_signup = false
+site_url = "https://scalaig.github.io/radar-nexo/app/"
+additional_redirect_urls = ["https://scalaig.github.io/radar-nexo/app/"]
+
+[functions.analizar]
+# La función valida por sí misma la sesión del usuario y que su perfil esté activo.
+verify_jwt = false

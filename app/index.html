@@ -1,0 +1,1549 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Radar NEXO</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    /* Paleta corporativa Scala Industries Group (navy + azul del isotipo) */
+    --bg:#f4f6f9; --surface:#ffffff; --surface-2:#eceff4; --border:#dbe1ea;
+    --text:#101E36; --text-muted:#5b6577; --accent:#0C76B2; --accent-ink:#ffffff;
+    --accent-2:#b8530a; --good:#1a7f4b; --warn:#a8760b; --bad:#b3311f;
+    --shadow:0 1px 2px rgba(16,30,54,.06), 0 8px 24px -12px rgba(16,30,54,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0a1220; --surface:#111d30; --surface-2:#182842; --border:#28324430;
+      --border:#25324a; --text:#e8ecf3; --text-muted:#93a0b4; --accent:#4fb3e8;
+      --accent-ink:#071626; --accent-2:#f0a34e; --good:#3fcf8a; --warn:#e6c157; --bad:#f1786a;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a1220; --surface:#111d30; --surface-2:#182842; --border:#25324a;
+    --text:#e8ecf3; --text-muted:#93a0b4; --accent:#4fb3e8; --accent-ink:#071626;
+    --accent-2:#f0a34e; --good:#3fcf8a; --warn:#e6c157; --bad:#f1786a;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--text); font-family:'Manrope',system-ui,sans-serif; line-height:1.45}
+  h1,h2,h3,.display{font-family:'Fraunces',Georgia,serif; text-wrap:balance}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums}
+  a{color:var(--accent)}
+  button{font:inherit}
+  .app{display:flex; min-height:100%}
+  .rail{width:220px; flex:none; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 14px; display:flex; flex-direction:column; gap:18px; position:sticky; top:0;
+    align-self:flex-start; height:100vh}
+  .brandlogos{display:flex; align-items:center; gap:10px; padding:2px 6px 4px}
+  .brandlogos .logo-scala{height:26px; width:auto; display:block}
+  .brandlogos .logo-x{color:var(--text-muted); font-size:13px; font-weight:600}
+  .brandlogos .logo-ccb-chip{background:#ffffff; border-radius:6px; padding:4px 6px; line-height:0; box-shadow:0 0 0 1px var(--border)}
+  .brandlogos .logo-ccb{height:22px; width:auto; display:block}
+  .herologos{display:flex; align-items:center; gap:12px; margin-bottom:14px}
+  .herologos img{height:36px; width:auto; display:block}
+  .herologos .hero-logo-x{color:var(--text-muted); font-size:16px; font-weight:600}
+  .herologos .hero-logo-ccb-chip{background:#ffffff; border-radius:8px; padding:6px 9px; line-height:0; box-shadow:0 0 0 1px var(--border)}
+  @media (max-width:760px){ .herologos img{height:28px} }
+  .brand{display:flex; align-items:baseline; gap:8px; padding:0 6px}
+  .brand .name{font-family:'Fraunces',serif; font-weight:700; font-size:19px; letter-spacing:-.01em}
+  .sub{font-size:11px; color:var(--text-muted); padding:0 6px}
+  nav{display:flex; flex-direction:column; gap:2px}
+  .navlink{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px;
+    color:var(--text-muted); text-decoration:none; font-weight:600; font-size:13.5px; cursor:pointer;
+    border:1px solid transparent; background:none; text-align:left; width:100%}
+  .navlink:hover{background:var(--surface-2); color:var(--text)}
+  .navlink.active{background:var(--accent); color:var(--accent-ink)}
+  .railfoot{margin-top:auto; font-size:11px; color:var(--text-muted); padding:0 6px}
+  main{flex:1; min-width:0; padding:28px 32px 60px}
+  .topbar{display:none}
+  .pagehead{display:flex; justify-content:space-between; align-items:flex-end; gap:16px;
+    flex-wrap:wrap; margin-bottom:22px}
+  .pagehead h1{font-size:26px; margin:0 0 4px}
+  .pagehead p{margin:0; color:var(--text-muted); font-size:14px; max-width:60ch}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:20px; box-shadow:var(--shadow)}
+  .row{display:flex; gap:14px; flex-wrap:wrap}
+  .col{flex:1; min-width:220px}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px}
+  .field label{font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em}
+  .field input, .field select, .field textarea{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:9px; color:var(--text);
+    padding:10px 12px; font-size:14.5px; font-family:inherit}
+  .field textarea{resize:vertical; min-height:64px}
+  .field input:focus, .field textarea:focus, .field select:focus{outline:2px solid var(--accent); outline-offset:1px}
+  .btn{display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:9px;
+    border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); font-weight:700;
+    font-size:13.5px; cursor:pointer}
+  .btn:disabled{opacity:.5; cursor:default}
+  .btn.ghost{background:transparent; color:var(--text); border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2)}
+  .btn.sm{padding:7px 11px; font-size:12.5px; border-radius:7px}
+  .hint{font-size:12px; color:var(--text-muted); margin-top:2px}
+  .searchbar{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+  .searchbar .field{margin-bottom:0; min-width:180px}
+  .badge{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700;
+    padding:3px 9px; border-radius:99px; background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border)}
+  .badge.on{background:color-mix(in srgb, var(--accent) 16%, transparent); color:var(--accent); border-color:transparent}
+  .badge.gap{background:color-mix(in srgb, var(--accent-2) 18%, transparent); color:var(--accent-2); border-color:transparent}
+  .badge.good{background:color-mix(in srgb, var(--good) 16%, transparent); color:var(--good); border-color:transparent}
+  table{width:100%; border-collapse:collapse; font-size:13.5px}
+  th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted);
+    padding:8px 10px; border-bottom:1px solid var(--border)}
+  td{padding:10px 10px; border-bottom:1px solid var(--border); vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .tablewrap{overflow-x:auto}
+  .empty{color:var(--text-muted); font-size:13.5px; padding:30px 10px; text-align:center}
+  .dimcard{border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:12px; background:var(--surface)}
+  .dimcard.isgap{border-color:var(--accent-2); box-shadow:0 0 0 1px var(--accent-2) inset}
+  .dimhead{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px}
+  .dimhead h3{margin:0; font-size:15.5px}
+  .dimhead .q{font-size:12.5px; color:var(--text-muted); margin-top:2px}
+  .qlist{margin-top:2px}
+  .qlist .q{font-size:12.5px; color:var(--text-muted); margin-top:3px; padding-left:13px; position:relative}
+  .qlist .q::before{content:"–"; position:absolute; left:0; color:var(--border)}
+  .refbase{font-size:12px; color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius:8px; padding:6px 10px; margin:8px 0 14px}
+  .qbase{display:inline-block; font-size:10.5px; font-weight:700; color:var(--accent-2); background:color-mix(in srgb, var(--accent-2) 14%, transparent); border-radius:99px; padding:1px 8px; margin-left:6px; vertical-align:middle; white-space:nowrap}
+  .levelbtn.isbase{box-shadow:0 0 0 2px var(--accent-2) inset}
+  .qscore{margin:14px 0 18px; padding-top:14px; border-top:1px dashed var(--border)}
+  .qscore:first-of-type{border-top:none; padding-top:0}
+  .qscore .qtext{font-size:13.5px; margin-bottom:8px}
+  .qscore .levelpicker{margin-bottom:0}
+  .lvl-label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:6px}
+  .levelpicker{display:flex; gap:6px}
+  .levelbtn{flex:1; padding:10px 0; text-align:center; border:1px solid var(--border); border-radius:8px;
+    background:var(--surface-2); color:var(--text); cursor:pointer; font-family:'IBM Plex Mono',monospace;
+    font-weight:700; font-size:14.5px; transition:background .12s,border-color .12s}
+  .levelbtn:hover{border-color:var(--accent)}
+  .levelbtn.sel{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .lvl-caption{display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-top:4px}
+  .levelpicker.rubrica{display:flex; flex-direction:column; gap:6px}
+  .levelpicker.rubrica .levelbtn{flex:none; display:flex; align-items:flex-start; gap:10px; text-align:left; padding:9px 12px}
+  .levelpicker.rubrica .levelbtn .lvlnum{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:14px; flex:none; width:16px}
+  .levelpicker.rubrica .levelbtn .lvltxt{font-family:'Manrope',system-ui,sans-serif; font-weight:400; font-size:12.5px; line-height:1.4; text-align:left}
+  .idx{font-size:11px; color:var(--text-muted)}
+  .viewbtn{margin-left:auto}
+  [hidden]{display:none!important}
+  .view{max-width:980px}
+  .toolrow{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center}
+  .steptag{font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--accent)}
+  .sectionsplit{display:grid; grid-template-columns:1fr 1.3fr; gap:18px; align-items:start}
+  @media (max-width:860px){ .sectionsplit{grid-template-columns:1fr} }
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px}
+  .kpi{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--shadow)}
+  .kpi .n{font-family:'Fraunces',serif; font-size:26px; font-weight:700}
+  .kpi .l{font-size:11.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em}
+  .flag{display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border-radius:10px;
+    background:color-mix(in srgb, var(--accent-2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent-2) 40%, transparent);
+    font-size:13.5px; margin-bottom:16px}
+  .flag b{color:var(--accent-2)}
+  .genbox{background:var(--surface-2); border:1px dashed var(--border); border-radius:10px; padding:12px 14px; font-size:13.5px; white-space:pre-wrap}
+  .footer-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap}
+  #radarWrap{display:flex; flex-direction:column; align-items:center; gap:10px}
+  .legend{display:flex; gap:16px; font-size:12px; flex-wrap:wrap; justify-content:center}
+  .legend span{display:inline-flex; align-items:center; gap:6px}
+  .legend i{width:10px;height:10px;border-radius:3px}
+  .toast{position:fixed; bottom:20px; right:20px; background:var(--text); color:var(--bg);
+    padding:11px 16px; border-radius:9px; font-size:13.5px; font-weight:600; box-shadow:var(--shadow);
+    z-index:50; max-width:320px}
+  @media (max-width:760px){
+    .rail{position:fixed; inset:auto 0 0 0; height:auto; width:100%; flex-direction:row;
+      overflow-x:auto; padding:10px 12px; border-right:none; border-top:1px solid var(--border); z-index:20}
+    .brand,.railfoot{display:none}
+    nav{flex-direction:row; gap:4px}
+    .navlink{white-space:nowrap}
+    main{padding:18px 16px 90px}
+    .levelbtn{padding:8px 0; font-size:13px}
+  }
+  @media print{
+    .rail, .toolrow, .footer-actions, .toast{display:none!important}
+    main{padding:0}
+    body{background:#fff; color:#000}
+    .card{box-shadow:none; border-color:#ccc}
+  }
+</style>
+
+
+<style>
+  .gate{position:fixed; inset:0; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px}
+  .gate[hidden]{display:none}
+  .gatecard{background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); width:100%; max-width:420px; padding:28px}
+  .gatecard h1{font-family:"Fraunces",serif; font-size:26px; margin:0 0 4px}
+  .gatecard p{color:var(--text-muted); font-size:14px; margin:0 0 18px}
+  .gatecard .field{margin-bottom:14px}
+  .gatecard .err{color:var(--bad); font-size:13.5px; font-weight:600; min-height:18px; margin:6px 0 10px}
+  .gatecard .linkbtn{background:none; border:none; color:var(--accent); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer; padding:0}
+  .gatecard .small{font-size:12px; color:var(--text-muted); margin-top:14px; line-height:1.5}
+  .userchip{margin:14px 0 6px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); font-size:12.5px}
+  .userchip b{display:block; font-size:13px}
+  .userchip .rolbadge{display:inline-block; font-size:11px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em}
+  .userchip button{margin-top:6px; background:none; border:none; padding:0; font:inherit; font-size:12.5px; color:var(--accent); font-weight:700; cursor:pointer}
+  .tablewrap select{font:inherit; padding:4px 6px; border-radius:6px; border:1px solid var(--border); background:var(--surface)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script></head><body>
+<div class="gate" id="loginGate" hidden>
+  <div class="gatecard">
+    <h1>Radar NEXO</h1>
+    <p id="gateSub">Ingresa con tu usuario del equipo Scala para registrar diagnósticos del Programa NEXO.</p>
+    <div id="gateLogin">
+      <div class="field"><label for="loginEmail">Correo</label><input id="loginEmail" type="email" autocomplete="username" placeholder="nombre@scala.com.co"></div>
+      <div class="field"><label for="loginPass">Contraseña</label><input id="loginPass" type="password" autocomplete="current-password"></div>
+      <div class="err" id="loginErr" role="alert"></div>
+      <button class="btn" id="btnLogin" style="width:100%">Ingresar</button>
+      <div style="margin-top:12px; text-align:center"><button class="linkbtn" id="btnOlvide">Olvidé mi contraseña</button></div>
+      <div class="small">¿Solo quieres conocer la herramienta? <a href="../" style="color:var(--accent); font-weight:700">Abrir la vista previa pública</a> (no guarda datos).</div>
+    </div>
+    <div id="gateReset" hidden>
+      <div class="field"><label for="newPass">Nueva contraseña (mínimo 8 caracteres)</label><input id="newPass" type="password" autocomplete="new-password"></div>
+      <div class="err" id="resetErr" role="alert"></div>
+      <button class="btn" id="btnNewPass" style="width:100%">Guardar contraseña</button>
+    </div>
+    <div id="gatePending" hidden>
+      <p id="pendingMsg"></p>
+      <button class="btn ghost" id="btnPendingOut" style="width:100%">Cerrar sesión</button>
+    </div>
+    <div id="gateConfig" hidden>
+      <p><b>Falta configurar la conexión.</b> Abre el archivo <span class="mono">config.js</span> y reemplaza <span class="mono">SUPABASE_URL</span> y <span class="mono">SUPABASE_ANON_KEY</span> con los datos de tu proyecto (ver la guía de puesta en marcha).</p>
+    </div>
+  </div>
+</div>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="name">Radar NEXO</span></div>
+    <div class="sub">Diagnóstico Fase I / IV · Programa NEXO</div>
+    <nav id="nav">
+      <button class="navlink" data-view="buscar">Buscar empresa</button>
+      <button class="navlink" data-view="consolidado">Consolidado</button>
+      <button class="navlink" data-view="metodologia">Metodología</button>
+      <button class="navlink" data-view="equipo" id="navEquipo" hidden>Equipo</button>
+    </nav>
+    <div class="userchip" id="userChip" hidden>
+      <b id="userNombre"></b>
+      <span class="rolbadge" id="userRol"></span>
+      <div class="mono" id="userEmail" style="color:var(--text-muted); word-break:break-all"></div>
+      <button id="btnLogout">Cerrar sesión</button>
+    </div>
+    <div class="railfoot">Programa NEXO · CCB<br>Diagnóstico a la medida</div>
+  </aside>
+
+  <main>
+    <!-- BUSCAR -->
+    <section class="view" id="view-buscar">
+      <div class="pagehead">
+        <div>
+          <div class="herologos" id="heroLogos"></div>
+          <h1>Buscar empresa</h1>
+          <p>Escribe el NIT y el nombre de la MiPyme para abrir su ficha, continuar una sesión o iniciar el diagnóstico de salida (Fase IV).</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="searchbar">
+          <div class="field"><label>NIT</label><input id="buscarNit" class="mono" placeholder="900123456-7"></div>
+          <div class="field"><label>Nombre de la empresa</label><input id="buscarNombre" placeholder="Razón social"></div>
+          <button class="btn" id="btnBuscar">Buscar</button>
+        </div>
+        <div id="buscarResultado" style="margin-top:18px"></div>
+      </div>
+    </section>
+
+    <!-- NUEVA EMPRESA -->
+    <section class="view" id="view-nueva" hidden>
+      <div class="pagehead">
+        <div>
+          <h1>Nueva empresa · Fase I</h1>
+          <p>No encontramos este NIT en el repositorio. Registra los datos básicos con lo que la empresa comparte en la llamada y continúa al diagnóstico.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <div class="field" style="flex:2; min-width:220px"><label>NIT *</label><input id="nNit" class="mono" placeholder="900123456"></div>
+          <div class="field" style="flex:0 0 100px"><label>DV</label><input id="nDv" class="mono" placeholder="7" maxlength="2">
+            <div class="hint">Dígito de verificación</div></div>
+        </div>
+        <div class="row">
+          <div class="col field"><label>Nombre / Razón social *</label><input id="nNombre"></div>
+        </div>
+        <div class="row">
+          <div class="col field"><label>Sector económico (CIIU) *</label>
+            <select id="nSector"><option value="">Selecciona el sector...</option></select>
+            <div class="hint">Clasificación CIIU Rev. 4 A.C. (DANE) — la misma usada en el RUT. El número entre paréntesis es el rango de códigos de esa sección (ej. 7020 cae en M, 69-75)</div>
+          </div>
+          <div class="col field"><label>Actividad específica</label><input id="nActividad" placeholder="Ej. desarrollo de software, biotecnología agrícola... (opcional, código CIIU si lo conoces)"></div>
+        </div>
+        <div class="row">
+          <div class="col field"><label>Municipio</label>
+            <input id="nCiudad" list="dlMunicipios" placeholder="Escribe o selecciona...">
+            <datalist id="dlMunicipios"></datalist>
+            <div class="hint">Jurisdicción Cámara de Comercio de Bucaramanga (79 municipios de Santander) — puedes escribir otro si no aplica</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col field"><label>Número de empleados</label><input id="nEmpleados" type="number" min="0" step="1" placeholder="Ej. 8"></div>
+          <div class="col field"><label>Ingresos anuales 2025 (COP)</label>
+            <select id="nIngresos"><option value="">Selecciona primero el sector...</option></select>
+          </div>
+        </div>
+        <div class="row" style="align-items:center; margin-bottom:14px">
+          <span class="hint">Tamaño empresarial (Decreto 957 de 2019, según ingresos y sector):</span>
+          <span class="badge" id="tamanoAuto">—</span>
+        </div>
+        <div class="row">
+          <div class="col field"><label>Contacto</label><input id="nContacto" placeholder="Nombre de quien atiende la sesión"></div>
+          <div class="col field"><label>Cargo del contacto</label><input id="nCargoContacto" placeholder="Ej. Gerente General, CEO..."></div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn ghost" data-view="buscar">Cancelar</button>
+          <button class="btn" id="btnCrear">Continuar a la sesión →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SESION (entrada o salida) -->
+    <section class="view" id="view-sesion" hidden>
+      <div class="pagehead">
+        <div>
+          <span class="steptag" id="sesionTag">FASE I · DIAGNÓSTICO DE ENTRADA</span>
+          <h1 id="sesionTitulo">—</h1>
+          <p id="sesionSub" class="mono" style="color:var(--text-muted)"></p>
+        </div>
+      </div>
+
+      <div class="toolrow">
+        <button class="btn ghost sm" id="btnGenSector">✦ Generar contexto de sector</button>
+        <span class="hint" id="sectorHint">Análisis general de tendencias del sector (no reemplaza cifras oficiales).</span>
+      </div>
+      <div id="sectorBox" hidden class="genbox" style="margin-bottom:18px"></div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h3 style="margin-top:0">Punto de partida de la conversación</h3>
+        <p class="hint" style="margin-bottom:10px">Antes de recorrer la rúbrica, pregunte al empresario, en sus propias palabras, qué es lo que más le preocupa o le gustaría resolver para hacer crecer la empresa. Regístrelo tal cual lo exprese — sirve como contraste cualitativo frente a la brecha que calcula el instrumento, no como un criterio adicional de calificación.</p>
+        <div class="field">
+          <label>¿Qué le gustaría resolver o fortalecer en la empresa en los próximos meses?</label>
+          <textarea id="percEmpresario" placeholder="Respuesta del empresario, en sus palabras..."></textarea>
+        </div>
+      </div>
+
+      <div id="dimList"></div>
+
+      <div class="card" style="margin-top:8px">
+        <h3 style="margin-top:0">Brecha prioritaria</h3>
+        <p class="hint" id="brechaSugerida" style="margin-bottom:12px"></p>
+        <div class="field">
+          <label>Dimensión priorizada</label>
+          <select id="brechaSelect"></select>
+        </div>
+        <div class="field">
+          <label>Justificación (para el informe consolidado)</label>
+          <textarea id="brechaJust" placeholder="Por qué esta es la restricción que más limita el crecimiento de la empresa..."></textarea>
+        </div>
+        <div class="field">
+          <label>Indicador de resultado del programa (para esta empresa)</label>
+          <textarea id="indicadorResultado" placeholder="Ej.: subir de nivel 2 a nivel 4 en la dimensión priorizada entre el diagnóstico de entrada y el de salida; o un indicador propio ligado a la brecha (ventas, margen, clientes nuevos, etc.)."></textarea>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <button class="btn ghost" data-view="buscar">Cancelar</button>
+        <button class="btn" id="btnGuardarSesion">Ver diagnóstico</button>
+      </div>
+    </section>
+
+    <!-- FICHA -->
+    <section class="view" id="view-ficha" hidden>
+      <div class="pagehead">
+        <div>
+          <h1 id="fichaTitulo">Ficha de empresa</h1>
+          <p class="mono" id="fichaSub" style="color:var(--text-muted)"></p>
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn ghost sm" id="btnImprimir">Imprimir / Guardar PDF</button>
+          <button class="btn ghost sm" id="btnExportCsv">Exportar CSV</button>
+        </div>
+      </div>
+      <div id="fichaBody"></div>
+    </section>
+
+    <!-- CONSOLIDADO -->
+    <section class="view" id="view-consolidado" hidden>
+      <div class="pagehead">
+        <div>
+          <h1>Informe consolidado</h1>
+          <p>Vista agregada de todas las empresas diagnosticadas — base para el informe de Fase I y el indicador de resultado del programa.</p>
+        </div>
+        <button class="btn ghost sm" id="btnExportConsolidado">Exportar CSV</button>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="card">
+        <div class="tablewrap"><table id="tablaConsolidado"><thead></thead><tbody></tbody></table></div>
+        <div id="consolidadoEmpty" class="empty" hidden>Aún no hay diagnósticos guardados en el repositorio.</div>
+      </div>
+    </section>
+
+    <!-- METODOLOGIA -->
+    <section class="view" id="view-metodologia" hidden>
+      <div class="pagehead"><div><h1>Metodología del instrumento</h1>
+      <p>Evidencia de la herramienta de diagnóstico — literal h) de la invitación NEXO.</p></div></div>
+      <div class="card" id="metodologiaBody"></div>
+    </section>
+    <!-- EQUIPO (solo administrador) -->
+    <section class="view" id="view-equipo" hidden>
+      <div class="pagehead"><div><h1>Equipo de consultores</h1>
+      <p>Activa o desactiva el acceso de cada consultor. Los usuarios nuevos se crean en el panel de Supabase (Authentication → Users) y quedan <b>inactivos</b> hasta que los actives aquí.</p></div></div>
+      <div class="card">
+        <div class="tablewrap"><table id="tablaEquipo"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acceso</th><th>Creado</th></tr></thead><tbody></tbody></table></div>
+        <div id="equipoEmpty" class="empty" hidden>Aún no hay usuarios.</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var DIMENSIONES = [
+    {id:"modelo", nombre:"Propuesta de valor y modelo de negocio",
+      qs:[
+        "¿Qué tan clara y diferenciada es la propuesta de valor frente a la competencia?",
+        "¿El modelo de ingresos ya genera caja de forma recurrente o todavía es un supuesto sin probar?",
+        "¿La empresa podría explicar su modelo de negocio, en pocas frases, a un inversionista o comprador nuevo?"
+      ],
+      fuente:"Business Model Canvas (Osterwalder & Pigneur)",
+      rubrica:[
+        "Propuesta de valor difusa, sin diferenciación clara ni modelo de ingresos definido.",
+        "Propuesta de valor identificada pero no diferenciada; modelo de ingresos incierto.",
+        "Propuesta de valor clara y diferenciada; modelo de ingresos definido pero no probado a escala.",
+        "Propuesta de valor validada con clientes; modelo de ingresos funcionando de forma recurrente.",
+        "Propuesta de valor y modelo de negocio validados, replicables y con ventaja competitiva sostenible."
+      ]},
+    {id:"producto", nombre:"Madurez tecnológica y del producto",
+      qs:[
+        "¿En qué nivel de madurez tecnológica (TRL) se encuentra el producto o desarrollo?"
+      ],
+      qRubrica:{0:true},
+      fuente:"Technology Readiness Level — TRL 1-9 (NASA / Comisión Europea, Horizon Europe)",
+      rubrica:[
+        "TRL 1-2 — idea o principio básico observado; concepto tecnológico formulado, sin validación.",
+        "TRL 3-4 — prueba de concepto en laboratorio; componentes validados en entorno controlado.",
+        "TRL 5-6 — validado en entorno representativo; prototipo de sistema integrado.",
+        "TRL 7-8 — prototipo operacional probado en condiciones reales; sistema cualificado.",
+        "TRL 9 — sistema plenamente operativo y desplegado en su entorno final de mercado."
+      ]},
+    {id:"mercado", nombre:"Validación de mercado y tracción",
+      qs:[
+        "¿Existen clientes reales pagando de forma recurrente, o la demanda es todavía una hipótesis?",
+        "¿Qué tan fácil sería para la empresa conseguir un nuevo cliente parecido a su mejor cliente actual?",
+        "¿Hay evidencia de retención o recompra que confirme un ajuste real entre el producto y el mercado?"
+      ],
+      fuente:"Customer Validation / Product-Market Fit (Lean Startup, E. Ries) y Market Readiness Level",
+      rubrica:[
+        "Sin clientes ni validación de mercado; hipótesis de demanda sin probar.",
+        "Primeras conversaciones o pilotos con clientes potenciales, sin ventas concretadas.",
+        "Primeras ventas o clientes piloto pagando, sin recurrencia comprobada.",
+        "Base de clientes recurrente y creciente, con evidencia de retención.",
+        "Tracción consolidada, participación de mercado relevante y crecimiento sostenido."
+      ]},
+    {id:"equipo", nombre:"Equipo y capacidad de ejecución",
+      qs:[
+        "¿El equipo tiene cubiertos los roles clave (comercial, técnico, financiero) con dedicación real?",
+        "¿Qué tan dependiente es la operación diaria de una sola persona, usualmente el fundador?",
+        "¿Existe conocimiento documentado o procesos que permitan que alguien más asuma un rol crítico si falta?"
+      ],
+      fuente:"Criterios de selección de aceleradoras de alto impacto (Endeavor, modelos tipo Y Combinator)",
+      rubrica:[
+        "Fundador(es) sin equipo o sin roles claros.",
+        "Equipo mínimo, con roles clave sin cubrir (p. ej. comercial o técnico).",
+        "Equipo core cubierto, pero fuertemente dependiente de una sola persona.",
+        "Equipo completo, con roles, responsabilidades y dedicación claramente definidos.",
+        "Equipo consolidado, con capacidad de gestión, liderazgo distribuido y plan de sucesión."
+      ]},
+    {id:"finanzas", nombre:"Gestión financiera y estructura de costos",
+      qs:[
+        "¿La empresa lleva registros financieros formales, separados de las finanzas personales?",
+        "¿Conoce su margen, su punto de equilibrio y las necesidades de capital para crecer?",
+        "¿Ha accedido o podría acceder hoy a financiamiento externo (crédito o inversión) con la información que maneja?"
+      ],
+      fuente:"Marco de evaluación de capacidades PYME (OECD, SME and Entrepreneurship Evaluation Framework)",
+      rubrica:[
+        "Sin registros financieros ni separación entre finanzas personales y de la empresa.",
+        "Registros básicos de ingresos/egresos, sin estructura de costos ni indicadores.",
+        "Contabilidad formal y estructura de costos identificada, sin proyecciones.",
+        "Control financiero con indicadores (margen, punto de equilibrio) y proyecciones de capital.",
+        "Gestión financiera madura: planeación de capital, acceso a financiamiento y métricas de unit economics."
+      ]},
+    {id:"innovacion", nombre:"Gestión de la innovación y protección del conocimiento",
+      qs:[
+        "¿Existen procesos formales para generar, priorizar y desarrollar nuevas ideas?",
+        "¿La empresa ha protegido su propiedad intelectual (marca, patente, secreto industrial)?",
+        "¿Hay una persona o equipo responsable de la innovación, más allá del propio fundador?"
+      ],
+      fuente:"NTC 5801:2018 ICONTEC — Sistema de Gestión de la I+D+i (alineada a ISO 56002)",
+      rubrica:[
+        "No hay procesos de innovación identificables ni conciencia de propiedad intelectual.",
+        "Innovación informal o esporádica, sin proceso definido ni protección de PI.",
+        "Proceso de innovación identificado (generación y priorización de ideas); PI parcialmente gestionada.",
+        "Proceso de innovación formalizado, con protección activa de PI (marca, patente, secreto industrial).",
+        "Sistema de gestión de la innovación estructurado, portafolio de innovación activo y PI protegida integralmente."
+      ]},
+    {id:"escalabilidad", nombre:"Escalabilidad y crecimiento",
+      qs:[
+        "¿El modelo puede crecer en ingresos sin que los costos crezcan en la misma proporción?",
+        "¿Existen alianzas, canales o redes externas que apalanquen el crecimiento de la empresa?",
+        "¿Los procesos clave están documentados y son replicables sin depender de una sola persona?"
+      ],
+      fuente:"Dimensiones de escalabilidad de negocio y marco OECD de capacidad innovadora (vínculos externos/redes)",
+      rubrica:[
+        "Modelo artesanal, totalmente dependiente del fundador; no puede crecer sin duplicar costos.",
+        "Algunos procesos repetibles, pero el crecimiento está atado a más personal o capital.",
+        "Procesos documentados y parcialmente replicables; primeras alianzas o canales externos.",
+        "Apalancamiento operativo (tecnología, alianzas, canales) que permite crecer más que proporcionalmente.",
+        "Modelo de escalamiento probado (inversión, licenciamiento, canales digitales) con red de alianzas activa."
+      ]}
+  ];
+
+  // Sectores económicos — 21 secciones de la Clasificación Industrial Internacional Uniforme
+  // Rev. 4 Adaptada para Colombia (CIIU Rev. 4 A.C., DANE) — la misma clasificación usada en el RUT.
+  // "r" = rango de divisiones (códigos numéricos CIIU de 2 dígitos) que cubre cada sección,
+  // para que sea más fácil ubicar el código exacto de la empresa (p. ej. 7020 cae en la sección M, 69-75).
+  var SECTORES_CIIU = [
+    {c:"A", r:"01-03", n:"Agricultura, ganadería, caza, silvicultura y pesca"},
+    {c:"B", r:"05-09", n:"Explotación de minas y canteras"},
+    {c:"C", r:"10-33", n:"Industrias manufactureras"},
+    {c:"D", r:"35", n:"Suministro de electricidad, gas, vapor y aire acondicionado"},
+    {c:"E", r:"36-39", n:"Distribución de agua; evacuación de aguas residuales, gestión de desechos y saneamiento ambiental"},
+    {c:"F", r:"41-43", n:"Construcción"},
+    {c:"G", r:"45-47", n:"Comercio al por mayor y al por menor; reparación de vehículos automotores y motocicletas"},
+    {c:"H", r:"49-53", n:"Transporte y almacenamiento"},
+    {c:"I", r:"55-56", n:"Alojamiento y servicios de comida"},
+    {c:"J", r:"58-63", n:"Información y comunicaciones"},
+    {c:"K", r:"64-66", n:"Actividades financieras y de seguros"},
+    {c:"L", r:"68", n:"Actividades inmobiliarias"},
+    {c:"M", r:"69-75", n:"Actividades profesionales, científicas y técnicas"},
+    {c:"N", r:"77-82", n:"Actividades de servicios administrativos y de apoyo"},
+    {c:"O", r:"84", n:"Administración pública y defensa; planes de seguridad social de afiliación obligatoria"},
+    {c:"P", r:"85", n:"Educación"},
+    {c:"Q", r:"86-88", n:"Actividades de atención de la salud humana y de asistencia social"},
+    {c:"R", r:"90-93", n:"Actividades artísticas, de entretenimiento y recreación"},
+    {c:"S", r:"94-96", n:"Otras actividades de servicios"},
+    {c:"T", r:"97-98", n:"Actividades de los hogares individuales como empleadores / productores para uso propio"},
+    {c:"U", r:"99", n:"Actividades de organizaciones y entidades extraterritoriales"}
+  ];
+
+  // Municipios de la jurisdicción de la Cámara de Comercio de Bucaramanga: 79 de los 87 municipios
+  // de Santander (se excluyen Barrancabermeja, Cimitarra, El Carmen de Chucurí, Landázuri, Puerto Parra,
+  // Puerto Wilches, Sabana de Torres y San Vicente de Chucurí, que tienen cámara propia).
+  var MUNICIPIOS_CCB = ["Aguada","Albania","Aratoca","Barbosa","Barichara","Betulia","Bolívar","Bucaramanga",
+    "Cabrera","California","Capitanejo","Carcasí","Cepitá","Cerrito","Charalá","Charta","Chima","Chipatá",
+    "Concepción","Confines","Contratación","Coromoro","Curití","El Guacamayo","El Peñón","El Playón","Encino",
+    "Enciso","Florián","Floridablanca","Galán","Gámbita","Girón","Guaca","Guadalupe","Guapotá","Guavatá",
+    "Güepsa","Hato","Jesús María","Jordán","La Belleza","La Paz","Lebrija","Los Santos","Macaravita","Málaga",
+    "Matanza","Mogotes","Molagavita","Ocamonte","Oiba","Onzaga","Palmar","Palmas del Socorro","Páramo",
+    "Piedecuesta","Pinchote","Puente Nacional","Rionegro","San Andrés","San Benito","San Gil","San Joaquín",
+    "San José de Miranda","San Miguel","Santa Bárbara","Santa Helena del Opón","Simacota","Socorro","Suaita",
+    "Sucre","Suratá","Tona","Valle de San José","Vélez","Vetas","Villanueva","Zapatoca"];
+
+  // Clasificación de tamaño empresarial — Decreto 957 de 2019 (MinCIT), por ingresos anuales en UVT.
+  // Se usa la UVT del año que se está preguntando (ingresos 2025): UVT 2025 = $49.799
+  // (Resolución DIAN 000193 del 4 de diciembre de 2024, año gravable 2025).
+  var UVT_2025 = 49799;
+  var UMBRALES_957 = {
+    manufactura: {micro:23563, pequena:204995, mediana:1736565},
+    comercio:    {micro:44769, pequena:431196, mediana:2160692},
+    servicios:   {micro:32988, pequena:131951, mediana:483034}
+  };
+  function grupoSector(codigoCiiu){
+    if(codigoCiiu==="C") return "manufactura";
+    if(codigoCiiu==="G") return "comercio";
+    return "servicios"; // catch-all, incluye J, M y el resto de secciones — uso habitual en RUES/Confecámaras
+  }
+  function fmtCOP(n){ return "$"+Math.round(n).toLocaleString("es-CO"); }
+  // Construye las 4 franjas de ingresos anuales 2025 (en COP) para el sector dado, cada una
+  // ya asociada a su tamaño empresarial — así el consultor solo elige el rango en la llamada,
+  // sin necesitar la cifra exacta de ingresos de la empresa.
+  function rangosIngresos(codigoCiiu){
+    var u = UMBRALES_957[grupoSector(codigoCiiu)];
+    var micro = u.micro*UVT_2025, pequena = u.pequena*UVT_2025, mediana = u.mediana*UVT_2025;
+    return [
+      {tamano:"Microempresa", label:"Hasta "+fmtCOP(micro)+" — Microempresa"},
+      {tamano:"Pequeña empresa", label:fmtCOP(micro)+" a "+fmtCOP(pequena)+" — Pequeña empresa"},
+      {tamano:"Mediana empresa", label:fmtCOP(pequena)+" a "+fmtCOP(mediana)+" — Mediana empresa"},
+      {tamano:"Gran empresa", label:"Más de "+fmtCOP(mediana)+" — Gran empresa"}
+    ];
+  }
+
+  var state = { view:"buscar", empresa:null, fase:null, dims:{}, entradaRef:null };
+  var cap = { db:null, sample:null, downloads:null };
+
+  function $(id){ return document.getElementById(id); }
+  function qs(sel, el){ return (el||document).querySelector(sel); }
+  function qsa(sel, el){ return Array.prototype.slice.call((el||document).querySelectorAll(sel)); }
+
+  function toast(msg){
+    var t = document.createElement("div");
+    t.className = "toast"; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 3200);
+  }
+
+  function sanitizeNit(v){ return (v||"").replace(/[^0-9]/g,""); }
+
+  function showView(name){
+    qsa(".view").forEach(function(v){ v.hidden = true; });
+    var el = $("view-"+name);
+    if(el) el.hidden = false;
+    qsa(".navlink").forEach(function(b){ b.classList.toggle("active", b.dataset.view===name); });
+    state.view = name;
+    window.scrollTo(0,0);
+  }
+  qsa(".navlink").forEach(function(b){
+    b.addEventListener("click", function(){ showView(b.dataset.view); if(b.dataset.view==="consolidado") loadConsolidado(); if(b.dataset.view==="metodologia") renderMetodologia(); if(b.dataset.view==="equipo") loadEquipo(); });
+  });
+
+  // ---------- sesión y capa de datos (Supabase) ----------
+  var CFG = window.NEXO_CONFIG || {};
+  var META_ENTRADA = Number(CFG.META_ENTRADA) || 24;
+  var META_SALIDA = Number(CFG.META_SALIDA) || 12;
+  var sb = null;
+  var CURRENT = null;   // {id, email, nombre, rol}
+  var booted = false;
+  var recovery = false;
+
+  function configurado(){
+    return CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && !/TU_PROYECTO|TU_CLAVE/.test(CFG.SUPABASE_URL+CFG.SUPABASE_ANON_KEY);
+  }
+
+  function makeDb(){
+    function fromRow(r){
+      var d = r.data || {};
+      if(d.nit == null) d.nit = r.nit;
+      if(d.nombre == null) d.nombre = r.nombre;
+      return d;
+    }
+    function DocRef(nit){ this.nit = nit; }
+    DocRef.prototype.get = async function(){
+      var r = await sb.from("empresas").select("nit,nombre,data").eq("nit", this.nit).maybeSingle();
+      if(r.error) throw r.error;
+      if(!r.data) return { exists:false, data:function(){ return null; } };
+      var d = fromRow(r.data);
+      return { exists:true, data:function(){ return d; } };
+    };
+    DocRef.prototype._save = async function(obj, reemplazar){
+      var r = await sb.rpc("guardar_empresa", { p_nit:this.nit, p_nombre:(obj&&obj.nombre)||"", p_patch:obj, p_reemplazar:!!reemplazar });
+      if(r.error) throw r.error;
+    };
+    DocRef.prototype.set = function(obj){ return this._save(obj, true); };
+    DocRef.prototype.update = function(obj){ return this._save(obj, false); };
+    function Col(){}
+    Col.prototype.orderBy = function(){ return this; };
+    Col.prototype.limit = function(){ return this; };
+    Col.prototype.get = async function(){
+      var r = await sb.from("empresas").select("nit,nombre,data").order("nombre", { ascending:true }).limit(2000);
+      if(r.error) throw r.error;
+      return { docs: (r.data||[]).map(function(row){ var d = fromRow(row); return { data:function(){ return d; } }; }) };
+    };
+    return {
+      doc: function(path){ return new DocRef(String(path).split("/")[1]); },
+      collection: function(){ return new Col(); }
+    };
+  }
+
+  function makeSample(){
+    return async function(prompt, opts){
+      var s = await sb.auth.getSession();
+      var sess = s && s.data && s.data.session;
+      if(!sess) throw { code:"sesión vencida, vuelve a ingresar" };
+      var resp = await fetch(CFG.SUPABASE_URL.replace(/\/$/,"") + "/functions/v1/analizar", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+sess.access_token, "apikey":CFG.SUPABASE_ANON_KEY },
+        body: JSON.stringify({ prompt:prompt, tipo:(opts&&opts.tipo)||"analisis" })
+      });
+      var j = null;
+      try{ j = await resp.json(); }catch(e){ j = null; }
+      if(!resp.ok || !j || !j.text) throw { code:(j&&j.error) || ("error "+resp.status) };
+      if(opts && typeof opts.onText === "function") opts.onText({ text:j.text });
+      return { text:j.text };
+    };
+  }
+
+  function makeDownloads(){
+    return {
+      save: async function(o){
+        var blob = new Blob(["﻿"+o.data], { type:"text/csv;charset=utf-8" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob); a.download = o.filename;
+        document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      }
+    };
+  }
+
+  function showGate(which){
+    $("loginGate").hidden = false;
+    ["gateLogin","gateReset","gatePending","gateConfig"].forEach(function(id){ $(id).hidden = (id !== which); });
+    $("gateSub").hidden = (which !== "gateLogin");
+  }
+
+  async function entrarSiHaySesion(){
+    if(recovery){ showGate("gateReset"); return; }
+    var s = await sb.auth.getSession();
+    var sess = s && s.data && s.data.session;
+    if(!sess){ showGate("gateLogin"); return; }
+    var user = sess.user;
+    var p = await sb.from("perfiles").select("id,email,nombre,rol,activo").eq("id", user.id).maybeSingle();
+    if(p.error || !p.data){
+      $("pendingMsg").textContent = "No pudimos cargar tu perfil. Intenta de nuevo en un momento o contacta al administrador.";
+      showGate("gatePending"); return;
+    }
+    if(!p.data.activo){
+      $("pendingMsg").textContent = "Tu usuario ("+user.email+") está pendiente de activación. Pídele al administrador que active tu acceso y vuelve a ingresar.";
+      showGate("gatePending"); return;
+    }
+    CURRENT = { id:p.data.id, email:p.data.email, nombre:p.data.nombre || p.data.email, rol:p.data.rol };
+    cap.db = makeDb(); cap.sample = makeSample(); cap.downloads = makeDownloads();
+    $("loginGate").hidden = true;
+    $("userChip").hidden = false;
+    $("userNombre").textContent = CURRENT.nombre;
+    $("userRol").textContent = CURRENT.rol === "admin" ? "Administrador" : "Consultor";
+    $("userEmail").textContent = CURRENT.email;
+    $("navEquipo").hidden = (CURRENT.rol !== "admin");
+    if(!booted){ booted = true; initHeroLogos(); }
+    showView("buscar");
+  }
+
+  function traducirErrorLogin(msg){
+    msg = String(msg||"");
+    if(/invalid login|credentials/i.test(msg)) return "Correo o contraseña incorrectos.";
+    if(/email not confirmed/i.test(msg)) return "Tu correo aún no está confirmado. Pídele al administrador que confirme tu usuario.";
+    if(/rate limit|too many/i.test(msg)) return "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.";
+    return "No se pudo ingresar. Revisa tus datos e inténtalo de nuevo.";
+  }
+
+  async function boot(){
+    if(!configurado() || !window.supabase){ showGate("gateConfig"); return; }
+    sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } });
+
+    sb.auth.onAuthStateChange(function(evt){
+      if(evt === "PASSWORD_RECOVERY"){ recovery = true; showGate("gateReset"); }
+      if(evt === "SIGNED_OUT"){ CURRENT = null; cap.db = null; cap.sample = null; cap.downloads = null; $("userChip").hidden = true; showGate("gateLogin"); }
+    });
+
+    $("btnLogin").addEventListener("click", async function(){
+      var email = ($("loginEmail").value||"").trim(), pass = $("loginPass").value||"";
+      $("loginErr").textContent = "";
+      if(!email || !pass){ $("loginErr").textContent = "Escribe tu correo y tu contraseña."; return; }
+      $("btnLogin").disabled = true;
+      var r = await sb.auth.signInWithPassword({ email:email, password:pass });
+      $("btnLogin").disabled = false;
+      if(r.error){ $("loginErr").textContent = traducirErrorLogin(r.error.message); return; }
+      $("loginPass").value = "";
+      await entrarSiHaySesion();
+    });
+    [$("loginEmail"), $("loginPass")].forEach(function(i){ i.addEventListener("keydown", function(e){ if(e.key==="Enter") $("btnLogin").click(); }); });
+
+    $("btnOlvide").addEventListener("click", async function(){
+      var email = ($("loginEmail").value||"").trim();
+      if(!email){ $("loginErr").textContent = "Escribe tu correo arriba y vuelve a pulsar «Olvidé mi contraseña»."; return; }
+      var r = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+      $("loginErr").style.color = r.error ? "var(--bad)" : "var(--good)";
+      $("loginErr").textContent = r.error ? "No se pudo enviar el correo. Intenta más tarde." : "Si el correo está registrado, te enviamos un enlace para crear una nueva contraseña.";
+    });
+
+    $("btnNewPass").addEventListener("click", async function(){
+      var np = $("newPass").value||"";
+      if(np.length < 8){ $("resetErr").textContent = "Usa al menos 8 caracteres."; return; }
+      var r = await sb.auth.updateUser({ password:np });
+      if(r.error){ $("resetErr").textContent = "No se pudo guardar la contraseña. Pide un nuevo enlace."; return; }
+      $("newPass").value = ""; $("resetErr").textContent = ""; recovery = false;
+      await entrarSiHaySesion();
+    });
+
+    var salir = async function(){ await sb.auth.signOut(); };
+    $("btnLogout").addEventListener("click", salir);
+    $("btnPendingOut").addEventListener("click", salir);
+
+    await entrarSiHaySesion();
+  }
+
+  // ---------- EQUIPO (administrador) ----------
+  async function loadEquipo(){
+    if(!CURRENT || CURRENT.rol !== "admin") return;
+    var tbody = qs("#tablaEquipo tbody"); tbody.innerHTML = "";
+    var r = await sb.from("perfiles").select("id,email,nombre,rol,activo,creado_en").order("creado_en", { ascending:true });
+    if(r.error){ toast("No se pudo cargar el equipo."); return; }
+    $("equipoEmpty").hidden = !!(r.data && r.data.length);
+    (r.data||[]).forEach(function(p){
+      var yo = p.id === CURRENT.id;
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>"+esc(p.nombre||"—")+(yo?" <span class='badge on'>tú</span>":"")+"</td><td class='mono'>"+esc(p.email)+"</td>"+
+        "<td><select data-id='"+esc(p.id)+"' data-f='rol'"+(yo?" disabled":"")+"><option value='consultor'"+(p.rol==="consultor"?" selected":"")+">Consultor</option><option value='admin'"+(p.rol==="admin"?" selected":"")+">Administrador</option></select></td>"+
+        "<td><label style='display:inline-flex; gap:6px; align-items:center'><input type='checkbox' data-id='"+esc(p.id)+"' data-f='activo'"+(p.activo?" checked":"")+(yo?" disabled":"")+"> "+(p.activo?"Activo":"Inactivo")+"</label></td>"+
+        "<td>"+esc((p.creado_en||"").slice(0,10))+"</td>";
+      tbody.appendChild(tr);
+    });
+    qsa("#tablaEquipo [data-f]").forEach(function(el){
+      el.addEventListener("change", async function(){
+        var patch = {};
+        patch[el.dataset.f] = el.dataset.f === "activo" ? el.checked : el.value;
+        var u = await sb.from("perfiles").update(patch).eq("id", el.dataset.id);
+        toast(u.error ? "No se pudo actualizar el usuario." : "Usuario actualizado.");
+        loadEquipo();
+      });
+    });
+  }
+
+  // ---------- BUSCAR ----------
+  $("btnBuscar").addEventListener("click", buscarEmpresa);
+  [$("buscarNit"), $("buscarNombre")].forEach(function(inp){
+    inp.addEventListener("keydown", function(e){ if(e.key==="Enter") buscarEmpresa(); });
+  });
+
+  async function buscarEmpresa(){
+    var nit = sanitizeNit($("buscarNit").value);
+    var nombre = ($("buscarNombre").value||"").trim();
+    var box = $("buscarResultado");
+    box.innerHTML = "";
+    if(!nit){ box.innerHTML = '<p class="hint">Escribe al menos el NIT para buscar.</p>'; return; }
+    if(!cap.db){
+      box.innerHTML = '<div class="flag"><span>🔎</span><span>Vista previa: puedes recorrer el diagnóstico para el NIT <b class="mono">'+esc(nit)+'</b>, pero no quedará guardado.</span></div>'+
+        '<button class="btn" id="btnIrNueva">Iniciar diagnóstico de Fase I (vista previa)</button>';
+      $("btnIrNueva").addEventListener("click", function(){
+        $("nNit").value = nit; $("nNombre").value = nombre;
+        showView("nueva");
+      });
+      return;
+    }
+    box.innerHTML = '<p class="hint">Buscando…</p>';
+    try{
+      var snap = await cap.db.doc("empresas/"+nit).get();
+      if(!snap.exists){
+        box.innerHTML = '<div class="flag"><span>🔎</span><span>No hay ningún diagnóstico guardado con el NIT <b class="mono">'+esc(nit)+'</b>. Puedes registrar la empresa y arrancar la Fase I.</span></div>'+
+          '<button class="btn" id="btnIrNueva">Registrar y empezar Fase I</button>';
+        $("btnIrNueva").addEventListener("click", function(){
+          $("nNit").value = nit; $("nNombre").value = nombre;
+          showView("nueva");
+        });
+        return;
+      }
+      var d = snap.data();
+      var tieneEntrada = !!d.entrada, tieneSalida = !!d.salida;
+      var html = '<div class="card" style="background:var(--surface-2)">'+
+        '<div class="row" style="justify-content:space-between; align-items:center">'+
+          '<div><div style="font-weight:800; font-size:16px">'+esc(d.nombre)+'</div>'+
+          '<div class="mono hint">NIT '+esc(d.nit)+(d.dv?'-'+esc(d.dv):'')+' · '+esc(d.sector||"sector no registrado")+' · '+esc(d.ciudad||"")+'</div></div>'+
+          '<div class="row" style="gap:6px">'+
+            (tieneEntrada? '<span class="badge on">Fase I ✓</span>':'<span class="badge">Fase I pendiente</span>')+
+            (tieneSalida? '<span class="badge good">Fase IV ✓</span>':'<span class="badge">Fase IV pendiente</span>')+
+          '</div>'+
+        '</div></div>'+
+        '<div class="footer-actions" style="justify-content:flex-start; margin-top:14px">';
+      if(!tieneEntrada){
+        html += '<button class="btn" id="btnEntrada">Iniciar diagnóstico de entrada</button>';
+      } else {
+        html += '<button class="btn ghost" id="btnVerFicha">Ver ficha</button>';
+        if(!tieneSalida) html += '<button class="btn" id="btnSalida">Iniciar diagnóstico de salida (Fase IV)</button>';
+        else html += '<button class="btn" id="btnRehacerSalida">Repetir diagnóstico de salida</button>';
+      }
+      html += '</div>';
+      box.innerHTML = html;
+      if($("btnEntrada")) $("btnEntrada").addEventListener("click", function(){ abrirSesion(d, "entrada"); });
+      if($("btnVerFicha")) $("btnVerFicha").addEventListener("click", function(){ abrirFicha(d); });
+      if($("btnSalida")) $("btnSalida").addEventListener("click", function(){ abrirSesion(d, "salida"); });
+      if($("btnRehacerSalida")) $("btnRehacerSalida").addEventListener("click", function(){ abrirSesion(d, "salida"); });
+    }catch(e){
+      box.innerHTML = '<p class="hint">No se pudo consultar el repositorio ahora mismo.</p>';
+    }
+  }
+
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+  // ---------- NUEVA ----------
+  // poblar select de sectores CIIU y datalist de municipios una sola vez
+  (function initListas(){
+    var sel = $("nSector");
+    SECTORES_CIIU.forEach(function(s){
+      var opt = document.createElement("option");
+      opt.value = s.c; opt.textContent = s.c+" ("+s.r+") — "+s.n;
+      sel.appendChild(opt);
+    });
+    var dl = $("dlMunicipios");
+    MUNICIPIOS_CCB.forEach(function(m){
+      var opt = document.createElement("option");
+      opt.value = m;
+      dl.appendChild(opt);
+    });
+  })();
+
+  // El tamaño empresarial (Decreto 957/2019) se clasifica por 3 macro-sectores (manufactura/comercio/
+  // servicios), no por cada actividad CIIU individual — el Decreto no define eso a nivel de código.
+  // Por eso el rango de ingresos se deriva automáticamente de la sección CIIU ya elegida arriba
+  // (grupoSector: C=manufactura, G=comercio, todo lo demás=servicios, criterio habitual de RUES/
+  // Confecámaras) en lugar de pedir un sector económico aparte — evita una pregunta redundante que
+  // podría contradecir la sección CIIU seleccionada.
+  function poblarRangosIngresos(){
+    var sectorC = $("nSector").value;
+    var sel = $("nIngresos");
+    var prev = sel.value;
+    sel.innerHTML = "";
+    if(!sectorC){
+      sel.appendChild(new Option("Selecciona primero el sector...", ""));
+      sel.disabled = true;
+      actualizarTamanoAuto();
+      return;
+    }
+    sel.disabled = false;
+    sel.appendChild(new Option("Selecciona el rango...", ""));
+    rangosIngresos(sectorC).forEach(function(r){
+      var opt = new Option(r.label, r.tamano);
+      sel.appendChild(opt);
+    });
+    if(prev){ sel.value = prev; }
+    actualizarTamanoAuto();
+  }
+  function actualizarTamanoAuto(){
+    var sel = $("nIngresos");
+    var tamano = sel.value || "";
+    $("tamanoAuto").textContent = tamano || "— (selecciona el sector y el rango de ingresos)";
+  }
+  $("nIngresos").addEventListener("change", actualizarTamanoAuto);
+  $("nSector").addEventListener("change", poblarRangosIngresos);
+  poblarRangosIngresos();
+
+  $("btnCrear").addEventListener("click", function(){
+    var nit = sanitizeNit($("nNit").value);
+    var nombre = ($("nNombre").value||"").trim();
+    var sectorC = $("nSector").value;
+    if(!nit || !nombre){ toast("NIT y nombre son obligatorios."); return; }
+    if(!sectorC){ toast("Selecciona el sector económico (CIIU)."); return; }
+    var sectorObj = SECTORES_CIIU.find(function(s){return s.c===sectorC;});
+    var rangoSel = $("nIngresos");
+    var rangoLabel = rangoSel.selectedIndex>0 ? rangoSel.options[rangoSel.selectedIndex].text : "";
+    var d = {
+      nit: nit, dv: ($("nDv").value||"").trim(), nombre: nombre,
+      sectorCiiu: sectorC,
+      sector: sectorObj ? (sectorObj.c+" ("+sectorObj.r+") — "+sectorObj.n) : "",
+      actividadEspecifica: ($("nActividad").value||"").trim(),
+      ciudad: ($("nCiudad").value||"").trim(),
+      empleados: ($("nEmpleados").value||"").trim(),
+      rangoIngresos2025: rangoLabel,
+      tamanoEmpresarial: rangoSel.value || null,
+      contacto: ($("nContacto").value||"").trim(),
+      cargoContacto: ($("nCargoContacto").value||"").trim(),
+      entrada: null, salida: null
+    };
+    abrirSesion(d, "entrada");
+  });
+
+  // ---------- SESION ----------
+  function abrirSesion(empresaDoc, fase){
+    state.empresa = empresaDoc;
+    state.fase = fase;
+    state.dims = {};
+    DIMENSIONES.forEach(function(dm){ state.dims[dm.id] = {respuestas: dm.qs.map(function(){return 3;}), impacto:3, nota:""}; });
+    state.entradaRef = (fase==="salida" && empresaDoc.entrada) ? empresaDoc.entrada : null;
+
+    $("sesionTag").textContent = fase==="entrada" ? "FASE I · DIAGNÓSTICO DE ENTRADA" : "FASE IV · DIAGNÓSTICO DE SALIDA";
+    $("sesionTitulo").textContent = empresaDoc.nombre;
+    $("sesionSub").textContent = "NIT "+empresaDoc.nit+(empresaDoc.dv?"-"+empresaDoc.dv:"")+(empresaDoc.sector?" · "+empresaDoc.sector:"");
+    $("sectorBox").hidden = true;
+    $("sectorBox").textContent = "";
+    $("percEmpresario").value = "";
+
+    renderDims();
+    renderBrechaSelect();
+    showView("sesion");
+  }
+
+  function renderDims(){
+    var wrap = $("dimList");
+    wrap.innerHTML = "";
+    DIMENSIONES.forEach(function(dm){
+      var st = state.dims[dm.id];
+      var ref = (state.entradaRef && state.entradaRef.dimensiones) ? (state.entradaRef.dimensiones[dm.id]||null) : null;
+      var el = document.createElement("div");
+      el.className = "dimcard";
+      el.id = "dim-"+dm.id;
+
+      var qHtml = dm.qs.map(function(q,i){
+        var usaRubrica = dm.qRubrica && dm.qRubrica[i];
+        var baseVal = (ref && ref.respuestas && ref.respuestas[i]!=null) ? Number(ref.respuestas[i]) : null;
+        var picker = usaRubrica ? levelBtnsRubrica(dm.rubrica, baseVal) : levelBtns(5, baseVal);
+        return '<div class="qscore">'+
+          '<div class="qtext">'+(i+1)+'. '+esc(q)+(baseVal!=null?' <span class="qbase">📍 Línea base: '+baseVal+'</span>':'')+'</div>'+
+          '<div class="levelpicker'+(usaRubrica?' rubrica':'')+'" id="lvlq-'+dm.id+'-'+i+'">'+picker+'</div>'+
+          '</div>';
+      }).join('');
+
+      el.innerHTML =
+        '<div class="dimhead"><div><h3>'+esc(dm.nombre)+'</h3></div>'+
+          '<span class="idx mono" id="idx-'+dm.id+'"></span></div>'+
+        (ref && ref.score!=null ? '<div class="refbase">📍 Línea base (Fase I): nivel '+fmtScore(ref.score)+' — '+esc(dm.rubrica[rubricaIdx(ref.score)-1])+'</div>' : '')+
+        '<div class="lvl-label">Estado actual — responda cada pregunta, de la más simple a la más exigente</div>'+
+        qHtml+
+        '<div class="lvl-label" style="margin-top:14px">Impacto si mejora</div>'+
+        '<div class="levelpicker" id="lvlimpacto-'+dm.id+'">'+levelBtns(5)+'</div>'+
+        '<div class="lvl-caption"><span>Bajo</span><span>Medio</span><span>Alto</span></div>'+
+        '<div class="field" style="margin:16px 0 0"><label>Nota</label><textarea id="nota-'+dm.id+'" placeholder="Observaciones de la conversación en vivo...">'+esc(st.nota)+'</textarea></div>';
+      wrap.appendChild(el);
+
+      function pintarSel(groupId, val){
+        qsa("#"+groupId+" .levelbtn").forEach(function(b){
+          b.classList.toggle("sel", Number(b.dataset.v)===val);
+        });
+      }
+      dm.qs.forEach(function(q,i){ pintarSel("lvlq-"+dm.id+"-"+i, st.respuestas[i]); });
+      pintarSel("lvlimpacto-"+dm.id, st.impacto);
+
+      dm.qs.forEach(function(q,i){
+        qsa("#lvlq-"+dm.id+"-"+i+" .levelbtn").forEach(function(b){
+          b.addEventListener("click", function(){
+            st.respuestas[i] = Number(b.dataset.v);
+            pintarSel("lvlq-"+dm.id+"-"+i, st.respuestas[i]);
+            renderBrechaSelect(true);
+          });
+        });
+      });
+      qsa("#lvlimpacto-"+dm.id+" .levelbtn").forEach(function(b){
+        b.addEventListener("click", function(){
+          st.impacto = Number(b.dataset.v);
+          pintarSel("lvlimpacto-"+dm.id, st.impacto);
+          renderBrechaSelect(true);
+        });
+      });
+      $("nota-"+dm.id).addEventListener("input", function(e){ st.nota = e.target.value; });
+    });
+    updateIdxLabels();
+  }
+
+  function levelBtns(n, baseVal){
+    var out = "";
+    for(var i=1;i<=n;i++){ out += '<button type="button" class="levelbtn'+(baseVal===i?' isbase':'')+'" data-v="'+i+'">'+i+'</button>'; }
+    return out;
+  }
+
+  function levelBtnsRubrica(rubrica, baseVal){
+    var out = "";
+    for(var i=0;i<rubrica.length;i++){
+      out += '<button type="button" class="levelbtn'+(baseVal===(i+1)?' isbase':'')+'" data-v="'+(i+1)+'">'+
+        '<span class="lvlnum">'+(i+1)+'</span><span class="lvltxt">'+esc(rubrica[i])+'</span></button>';
+    }
+    return out;
+  }
+
+  function avgScore(arr){
+    if(!arr || !arr.length) return null;
+    var s = 0; for(var i=0;i<arr.length;i++) s += arr[i];
+    return s / arr.length;
+  }
+  function rubricaIdx(avg){ return Math.min(5, Math.max(1, Math.round(avg))); }
+  function fmtScore(v){ return (v==null || isNaN(v)) ? "—" : (Math.round(v*10)/10).toFixed(1); }
+
+  function brechaIndex(id){ var st = state.dims[id]; return st.impacto * (6 - avgScore(st.respuestas)); }
+
+  function updateIdxLabels(){
+    var max = -1, top = null;
+    DIMENSIONES.forEach(function(dm){
+      var idx = brechaIndex(dm.id);
+      if(idx > max){ max = idx; top = dm.id; }
+    });
+    DIMENSIONES.forEach(function(dm){
+      var lab = $("idx-"+dm.id);
+      if(lab) lab.textContent = "índice "+fmtScore(brechaIndex(dm.id));
+      var card = $("dim-"+dm.id);
+      if(card) card.classList.toggle("isgap", dm.id===top && !state._brechaManual);
+    });
+    return top;
+  }
+
+  function renderBrechaSelect(fromSlider){
+    var top = updateIdxLabels();
+    var sel = $("brechaSelect");
+    var prev = state._brechaId || top;
+    sel.innerHTML = "";
+    DIMENSIONES.forEach(function(dm){
+      var opt = document.createElement("option");
+      opt.value = dm.id;
+      opt.textContent = dm.nombre + " (índice "+fmtScore(brechaIndex(dm.id))+")";
+      sel.appendChild(opt);
+    });
+    sel.value = prev;
+    state._brechaId = sel.value;
+    $("brechaSugerida").textContent = "Sugerencia automática según Teoría de Restricciones (menor estado actual × mayor impacto potencial): "+
+      (DIMENSIONES.find(function(d){return d.id===top;})||{}).nombre + ". Puedes cambiarla si el criterio del consultor difiere.";
+    sel.onchange = function(){ state._brechaId = sel.value; state._brechaManual = true; updateIdxLabels(); };
+  }
+
+  // sector context (value-add, sample capability)
+  $("btnGenSector").addEventListener("click", async function(){
+    if(!cap.sample){ toast("El asistente de contexto no está disponible en este visor."); return; }
+    var sector = state.empresa && state.empresa.sector ? state.empresa.sector : "";
+    if(!sector){ toast("Escribe primero el sector/actividad de la empresa."); return; }
+    var box = $("sectorBox");
+    box.hidden = false;
+    box.textContent = "Pensando…";
+    try{
+      var prompt = "Eres un consultor de productividad colombiano. Escribe un párrafo breve (90-130 palabras), "+
+        "en español, con contexto general del sector \""+sector+"\" en Colombia para MiPymes de base tecnológica o alto impacto: "+
+        "tendencias, retos comunes y qué suele diferenciar a las empresas que logran crecer en ese sector. "+
+        "No inventes cifras específicas ni fuentes; mantente en observaciones generales y útiles para orientar la conversación de un diagnóstico. "+
+        "No agregues título ni listas, solo el párrafo.";
+      var res = await cap.sample(prompt, { tipo:"contexto", onText: function(u){ box.textContent = u.text; } });
+      state._contextoSector = res.text;
+    }catch(e){
+      box.textContent = "No se pudo generar el contexto ahora ("+(e&&e.code||"error")+").";
+    }
+  });
+
+  // guardar sesion
+  $("btnGuardarSesion").addEventListener("click", guardarSesion);
+  async function guardarSesion(){
+    var dimsOut = {};
+    DIMENSIONES.forEach(function(dm){
+      var st = state.dims[dm.id];
+      dimsOut[dm.id] = {
+        respuestas: st.respuestas.slice(),
+        score: Math.round(avgScore(st.respuestas)*10)/10,
+        impacto: st.impacto,
+        nota: st.nota
+      };
+    });
+    var payload = {
+      fecha: new Date().toISOString().slice(0,10),
+      dimensiones: dimsOut,
+      brechaId: state._brechaId,
+      brechaNombre: (DIMENSIONES.find(function(d){return d.id===state._brechaId;})||{}).nombre,
+      brechaJustificacion: ($("brechaJust").value||"").trim(),
+      indicadorResultado: ($("indicadorResultado").value||"").trim(),
+      contextoSector: state._contextoSector || "",
+      percepcionEmpresario: ($("percEmpresario").value||"").trim(),
+      aplicadoPor: (CURRENT && CURRENT.nombre) || "", aplicadoPorEmail: (CURRENT && CURRENT.email) || ""
+    };
+    var nit = state.empresa.nit;
+    var base = {
+      nit: nit, dv: state.empresa.dv||"", nombre: state.empresa.nombre,
+      sectorCiiu: state.empresa.sectorCiiu||"", sector: state.empresa.sector||"",
+      actividadEspecifica: state.empresa.actividadEspecifica||"",
+      ciudad: state.empresa.ciudad||"", contacto: state.empresa.contacto||"",
+      cargoContacto: state.empresa.cargoContacto||"",
+      empleados: state.empresa.empleados||"", rangoIngresos2025: state.empresa.rangoIngresos2025||"",
+      tamanoEmpresarial: state.empresa.tamanoEmpresarial||null,
+      updatedAt: new Date().toISOString()
+    };
+    var field = {}; field[state.fase] = payload;
+    var body = Object.assign({}, base, field);
+
+    if(!cap.db){
+      // Vista previa (por ejemplo, fuera de Claude): mostramos el resultado sin guardar nada.
+      body.entrada = state.fase==="entrada" ? payload : null;
+      body.salida = state.fase==="salida" ? payload : null;
+      toast("Vista previa — este diagnóstico no se guardó (modo demostración).");
+      abrirFicha(body);
+      return;
+    }
+
+    try{
+      var ref = cap.db.doc("empresas/"+nit);
+      var existing = await ref.get();
+      if(existing.exists){
+        var metaUpdate = Object.assign({}, base);
+        if(state.fase==="entrada") metaUpdate.entrada = payload; else metaUpdate.salida = payload;
+        await ref.update(metaUpdate);
+      } else {
+        body.entrada = state.fase==="entrada" ? payload : null;
+        body.salida = state.fase==="salida" ? payload : null;
+        await ref.set(body);
+      }
+      toast("Diagnóstico guardado en el repositorio.");
+      var fresh = await ref.get();
+      abrirFicha(fresh.data());
+    }catch(e){
+      toast("No se pudo guardar (" + (e&&e.code||"error") + "). Intenta de nuevo.");
+    }
+  }
+
+  // ---------- FICHA ----------
+  function abrirFicha(d){
+    $("fichaTitulo").textContent = d.nombre;
+    $("fichaSub").textContent = "NIT "+d.nit+(d.dv?"-"+d.dv:"")+(d.sector?" · "+d.sector:"")+(d.ciudad?" · "+d.ciudad:"")+(d.entrada&&d.entrada.aplicadoPor?" · Fase I: "+d.entrada.aplicadoPor:"")+(d.salida&&d.salida.aplicadoPor?" · Fase IV: "+d.salida.aplicadoPor:"");
+    var body = $("fichaBody");
+    body.innerHTML = "";
+
+    if(!d.entrada){
+      body.innerHTML = '<div class="empty">Esta empresa aún no tiene diagnóstico de entrada.</div>';
+      showView("ficha"); return;
+    }
+
+    var sec = document.createElement("div"); sec.className = "sectionsplit";
+    var left = document.createElement("div");
+    var right = document.createElement("div");
+
+    // tabla dimensiones
+    var rows = DIMENSIONES.map(function(dm){
+      var e = d.entrada.dimensiones[dm.id] || {};
+      var s = d.salida ? (d.salida.dimensiones[dm.id]||{}) : null;
+      var delta = (s && e.score!=null && s.score!=null) ? (s.score-e.score) : null;
+      return '<tr>'+
+        '<td>'+esc(dm.nombre)+(dm.id===d.entrada.brechaId?' <span class="badge gap">brecha F1</span>':'')+
+          (d.salida && dm.id===d.salida.brechaId?' <span class="badge gap">brecha F4</span>':'')+'</td>'+
+        '<td class="mono">'+ fmtScore(e.score) +'</td>'+
+        (d.salida ? '<td class="mono">'+fmtScore(s&&s.score)+'</td><td class="mono">'+
+          (delta!=null?(delta>0?"+":"")+fmtScore(delta):"—")+'</td>' : '')+
+        '</tr>';
+    }).join("");
+
+    left.innerHTML = '<div class="card">'+
+      '<h3 style="margin-top:0">Dimensiones evaluadas</h3>'+
+      '<div class="tablewrap"><table><thead><tr><th>Dimensión</th><th>Entrada</th>'+
+        (d.salida?'<th>Salida</th><th>Δ</th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<div class="flag" style="margin-top:16px"><span>🎯</span><span><b>Brecha prioritaria (Fase I):</b> '+esc(d.entrada.brechaNombre)+
+        (d.entrada.brechaJustificacion? ' — '+esc(d.entrada.brechaJustificacion) : '')+'</span></div>'+
+      (d.entrada.indicadorResultado ? '<div class="flag" style="margin-top:8px"><span>📊</span><span><b>Indicador de resultado (Fase I):</b> '+esc(d.entrada.indicadorResultado)+'</span></div>' : '')+
+      (d.salida ? '<div class="flag" style="margin-top:8px; background:color-mix(in srgb, var(--good) 14%, transparent); border-color:color-mix(in srgb, var(--good) 40%, transparent)">'+
+        '<span>✅</span><span><b>Resultado Fase IV — brecha priorizada:</b> '+esc(d.salida.brechaNombre)+
+        (d.salida.brechaJustificacion? ' — '+esc(d.salida.brechaJustificacion) : '')+'</span></div>' : '')+
+      (d.salida && d.salida.indicadorResultado ? '<div class="flag" style="margin-top:8px"><span>📊</span><span><b>Indicador de resultado (Fase IV):</b> '+esc(d.salida.indicadorResultado)+'</span></div>' : '')+
+      '</div>';
+
+    var analisisExistente = d.analisisIA || "";
+    left.innerHTML += '<div class="card" style="margin-top:16px">'+
+      '<div class="row" style="justify-content:space-between; align-items:center; gap:10px; margin-bottom:'+(analisisExistente?'10px':'2px')+'">'+
+        '<h3 style="margin:0">Análisis estructurado del diagnóstico</h3>'+
+        '<button class="btn ghost sm" id="btnGenAnalisis">✦ '+(analisisExistente?'Regenerar':'Generar análisis')+'</button>'+
+      '</div>'+
+      (analisisExistente ?
+        '<div class="genbox" id="analisisBox">'+esc(analisisExistente)+'</div>'+
+        '<p class="hint" style="margin-top:6px">Síntesis generada a partir de las 7 dimensiones, la brecha priorizada y las notas de la conversación'+
+          (d.analisisIAFecha ? ' · '+esc(d.analisisIAFecha.slice(0,10)) : '')+'.</p>'
+        :
+        '<div class="genbox" id="analisisBox" hidden></div>'+
+        '<p class="hint">Una sola síntesis del diagnóstico completo — no una conclusión por dimensión — que integra las 7 dimensiones, la brecha priorizada y las notas de la conversación.</p>'
+      )+
+      '</div>';
+
+    if(d.salida){
+      var deltas = DIMENSIONES.map(function(dm){
+        var e = (d.entrada.dimensiones[dm.id]||{}).score, s = (d.salida.dimensiones[dm.id]||{}).score;
+        return (e!=null && s!=null) ? (s-e) : null;
+      }).filter(function(v){ return v!=null; });
+      var promDelta = deltas.length ? (deltas.reduce(function(a,b){return a+b;},0)/deltas.length) : null;
+      var eBrecha = (d.entrada.dimensiones[d.entrada.brechaId]||{}).score;
+      var sBrechaMismaDim = (d.salida.dimensiones[d.entrada.brechaId]||{}).score;
+      var mismaBrecha = d.entrada.brechaId === d.salida.brechaId;
+      var narrativa = 'Entre el diagnóstico de entrada ('+esc(d.entrada.fecha)+') y el de salida ('+esc(d.salida.fecha)+'), la empresa mejoró en promedio <b>'+
+        (promDelta!=null ? (promDelta>0?'+':'')+fmtScore(promDelta) : '—') +' puntos</b> en las 7 dimensiones evaluadas tras el acompañamiento del Programa NEXO (asistencia técnica y voucher de innovación). '+
+        'La brecha priorizada en la entrada — <b>'+esc(d.entrada.brechaNombre)+'</b> — pasó de nivel '+fmtScore(eBrecha)+' a nivel '+fmtScore(sBrechaMismaDim)+
+        (eBrecha!=null && sBrechaMismaDim!=null ? ' ('+(sBrechaMismaDim-eBrecha>0?'+':'')+fmtScore(sBrechaMismaDim-eBrecha)+')' : '')+'. '+
+        (mismaBrecha ? 'En el diagnóstico de salida se volvió a priorizar la misma dimensión.' : 'En el diagnóstico de salida la dimensión priorizada cambió a <b>'+esc(d.salida.brechaNombre)+'</b>.');
+      left.innerHTML += '<div class="card" style="margin-top:16px; background:color-mix(in srgb, var(--good) 8%, transparent); border-color:color-mix(in srgb, var(--good) 30%, transparent)">'+
+        '<h3 style="margin-top:0">Informe de resultado — Fase I → Fase IV</h3><p style="font-size:13.5px; margin-bottom:0">'+narrativa+'</p></div>';
+    }
+
+    if(d.entrada.percepcionEmpresario || (d.salida && d.salida.percepcionEmpresario)){
+      left.innerHTML += '<div class="card" style="margin-top:16px"><h3 style="margin-top:0">Percepción del empresario (contraste cualitativo)</h3>'+
+        (d.entrada.percepcionEmpresario ? '<p class="hint" style="margin-bottom:4px">Línea base (Fase I):</p><p style="font-size:13.5px; margin-top:0">'+esc(d.entrada.percepcionEmpresario)+'</p>' : '')+
+        (d.salida && d.salida.percepcionEmpresario ? '<p class="hint" style="margin-bottom:4px">Cierre (Fase IV):</p><p style="font-size:13.5px; margin-top:0">'+esc(d.salida.percepcionEmpresario)+'</p>' : '')+
+        '</div>';
+    }
+
+    if(d.entrada.contextoSector){
+      left.innerHTML += '<div class="card" style="margin-top:16px"><h3 style="margin-top:0">Contexto de sector</h3><p style="font-size:13.5px">'+esc(d.entrada.contextoSector)+'</p></div>';
+    }
+
+    var datosFila = function(l,v){ return v ? '<tr><td style="color:var(--text-muted)">'+esc(l)+'</td><td>'+esc(v)+'</td></tr>' : ''; };
+    left.innerHTML += '<div class="card" style="margin-top:16px"><h3 style="margin-top:0">Datos de la empresa</h3>'+
+      '<div class="tablewrap"><table><tbody>'+
+      datosFila("NIT", d.nit+(d.dv?"-"+d.dv:""))+
+      datosFila("Sector (CIIU)", d.sector)+
+      datosFila("Actividad específica", d.actividadEspecifica)+
+      datosFila("Municipio", d.ciudad)+
+      datosFila("Número de empleados", d.empleados)+
+      datosFila("Ingresos anuales 2025", d.rangoIngresos2025)+
+      datosFila("Tamaño empresarial", d.tamanoEmpresarial)+
+      datosFila("Contacto", d.contacto + (d.cargoContacto ? " — "+d.cargoContacto : ""))+
+      '</tbody></table></div></div>';
+
+    var indicadorMostrar = d.salida ? d.salida.indicadorResultado : d.entrada.indicadorResultado;
+    right.innerHTML = '<div class="card"><h3 style="margin-top:0">Radar de dimensiones</h3><div id="radarWrap"></div>'+
+      '<div class="flag" style="margin-top:14px"><span>🎯</span><span><b>Brecha prioritaria'+(d.salida?' (Fase IV)':' (Fase I)')+':</b> '+
+      esc(d.salida ? d.salida.brechaNombre : d.entrada.brechaNombre)+'</span></div>'+
+      (indicadorMostrar ? '<div class="flag" style="margin-top:8px"><span>📊</span><span><b>Indicador de resultado'+(d.salida?' (Fase IV)':' (Fase I)')+':</b> '+esc(indicadorMostrar)+'</span></div>' : '')+
+      '</div>';
+
+    // el radar va primero (columna izquierda / arriba en móvil): es el resultado que se quiere ver de entrada
+    sec.appendChild(right); sec.appendChild(left);
+    body.appendChild(sec);
+    showView("ficha");
+    drawRadar($("radarWrap"), d);
+
+    var btnGenAnalisis = $("btnGenAnalisis");
+    if(btnGenAnalisis) btnGenAnalisis.addEventListener("click", function(){ generarAnalisis(d); });
+  }
+
+  function buildAnalisisPrompt(d){
+    var e = d.entrada, s = d.salida;
+    var lineas = DIMENSIONES.map(function(dm){
+      var de = e.dimensiones[dm.id] || {};
+      var txt = "- "+dm.nombre+": nivel "+fmtScore(de.score)+" de 5"+
+        (de.score!=null ? " (\""+dm.rubrica[rubricaIdx(de.score)-1]+"\")" : "")+
+        ", impacto potencial si mejora "+(de.impacto!=null?de.impacto:"—")+" de 5.";
+      if(de.nota) txt += " Nota del consultor en la entrada: \""+de.nota+"\".";
+      if(s){
+        var ds = s.dimensiones[dm.id] || {};
+        txt += " En la salida: nivel "+fmtScore(ds.score)+" de 5"+(ds.nota?" — nota del consultor: \""+ds.nota+"\"":"")+".";
+      }
+      return txt;
+    }).join("\n");
+
+    var secciones = ["DIAGNÓSTICO GENERAL","FORTALEZAS","RESTRICCIÓN PRIORITARIA","OBSERVACIONES DE LA CONVERSACIÓN"];
+    if(e.percepcionEmpresario || (s && s.percepcionEmpresario)) secciones.push("CONTRASTE CON LA PERCEPCIÓN DEL EMPRESARIO");
+    if(s) secciones.push("EVOLUCIÓN FASE I A FASE IV");
+
+    return "Eres un consultor senior de productividad colombiano, redactando la sección de análisis de un informe de diagnóstico empresarial para el Programa NEXO (Cámara de Comercio de Bucaramanga). "+
+      "A continuación tienes los datos reales recogidos en la sesión de diagnóstico de la empresa \""+d.nombre+"\" (sector: "+(d.sector||"no especificado")+"). "+
+      "Con base ÚNICAMENTE en esta información — no inventes cifras, hechos ni recomendaciones que no se puedan derivar de estos datos — redacta un análisis estructurado y coherente en español, en prosa (sin listas con viñetas ni markdown ni asteriscos), de entre 220 y 350 palabras en total.\n\n"+
+      "DATOS POR DIMENSIÓN (nivel de 1 a 5, promedio de las respuestas a las preguntas guía de cada una):\n"+lineas+"\n\n"+
+      "Brecha priorizada por el consultor en la entrada: "+(e.brechaNombre||"—")+(e.brechaJustificacion?" — justificación del consultor: \""+e.brechaJustificacion+"\"":"")+".\n"+
+      (e.indicadorResultado ? "Indicador de resultado del programa definido para esta empresa: \""+e.indicadorResultado+"\".\n" : "")+
+      (s ? "Brecha priorizada en la salida: "+(s.brechaNombre||"—")+(s.brechaJustificacion?" — justificación del consultor: \""+s.brechaJustificacion+"\"":"")+".\n" : "")+
+      (s && s.indicadorResultado ? "Indicador de resultado del programa (salida): \""+s.indicadorResultado+"\".\n" : "")+
+      (e.percepcionEmpresario ? "Percepción propia del empresario en la entrada, en sus palabras: \""+e.percepcionEmpresario+"\".\n" : "")+
+      (s && s.percepcionEmpresario ? "Percepción propia del empresario en la salida, en sus palabras: \""+s.percepcionEmpresario+"\".\n" : "")+
+      "\nEstructura la respuesta exactamente en estas secciones, en este orden, cada una como un título corto en MAYÚSCULAS seguido de dos puntos y el texto en el siguiente renglón, con una línea en blanco entre secciones: "+secciones.join(", ")+".\n\n"+
+      "En 'OBSERVACIONES DE LA CONVERSACIÓN', integra de forma fluida en un solo párrafo las notas del consultor citadas arriba — no las listes dimensión por dimensión ni repitas el nombre de cada dimensión como encabezado.";
+  }
+
+  async function generarAnalisis(d){
+    if(!cap.sample){ toast("El asistente de análisis no está disponible en este visor."); return; }
+    var box = $("analisisBox"); var btn = $("btnGenAnalisis");
+    if(!box) return;
+    box.hidden = false;
+    box.textContent = "Generando análisis…";
+    if(btn) btn.disabled = true;
+    try{
+      var prompt = buildAnalisisPrompt(d);
+      var res = await cap.sample(prompt, { modelTier:"default", onText: function(u){ box.textContent = u.text; } });
+      if(cap.db){
+        try{ await cap.db.doc("empresas/"+d.nit).update({ analisisIA: res.text, analisisIAFecha: new Date().toISOString() }); }
+        catch(e2){ /* el análisis se muestra igual aunque no se pueda persistir */ }
+      }
+      if(btn) btn.textContent = "✦ Regenerar";
+    }catch(e){
+      box.textContent = "No se pudo generar el análisis ahora ("+(e&&e.code||"error")+"). Intenta de nuevo.";
+    }finally{
+      if(btn) btn.disabled = false;
+    }
+  }
+
+  function drawRadar(container, d){
+    container.innerHTML = "";
+    var size = 320, cx = size/2, cy = size/2, r = size/2 - 46;
+    var n = DIMENSIONES.length;
+    var canvas = document.createElement("canvas");
+    canvas.width = size; canvas.height = size; canvas.style.maxWidth = "100%";
+    var ctx = canvas.getContext("2d");
+    var cs = getComputedStyle(document.documentElement);
+    var cBorder = cs.getPropertyValue("--border").trim() || "#ccc";
+    var cMuted = cs.getPropertyValue("--text-muted").trim() || "#888";
+    var cText = cs.getPropertyValue("--text").trim() || "#111";
+    var cAccent = cs.getPropertyValue("--accent").trim() || "#0e6f76";
+    var cAccent2 = cs.getPropertyValue("--accent-2").trim() || "#b8530a";
+
+    function pt(i, val){
+      var ang = -Math.PI/2 + i*(2*Math.PI/n);
+      var rr = r * (val/5);
+      return [cx + rr*Math.cos(ang), cy + rr*Math.sin(ang)];
+    }
+    // grid rings
+    ctx.strokeStyle = cBorder; ctx.lineWidth = 1;
+    for(var ring=1; ring<=5; ring++){
+      ctx.beginPath();
+      for(var i=0;i<n;i++){
+        var p = pt(i, ring);
+        if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+      }
+      ctx.closePath(); ctx.stroke();
+    }
+    // axes + labels
+    ctx.fillStyle = cMuted; ctx.font = "10px Manrope, sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    for(var i=0;i<n;i++){
+      var p5 = pt(i,5.55);
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(pt(i,5)[0], pt(i,5)[1]); ctx.strokeStyle = cBorder; ctx.stroke();
+      ctx.fillText(String(i+1), p5[0], p5[1]);
+    }
+    function poly(getVal, color, dashed){
+      ctx.beginPath();
+      for(var i=0;i<n;i++){
+        var v = getVal(DIMENSIONES[i].id);
+        var p = pt(i, v==null?0:v);
+        if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+      }
+      ctx.closePath();
+      ctx.setLineDash(dashed?[4,3]:[]);
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = color + "33"; ctx.fill();
+      ctx.setLineDash([]);
+    }
+    poly(function(id){ return (d.entrada.dimensiones[id]||{}).score; }, cAccent, !!d.salida);
+    if(d.salida){ poly(function(id){ return (d.salida.dimensiones[id]||{}).score; }, cAccent2, false); }
+
+    container.appendChild(canvas);
+    var legend = document.createElement("div"); legend.className = "legend";
+    var items = DIMENSIONES.map(function(dm,i){ return (i+1)+". "+dm.nombre; }).join(" · ");
+    legend.innerHTML = '<span><i style="background:'+cAccent+'"></i>Entrada</span>'+(d.salida?'<span><i style="background:'+cAccent2+'"></i>Salida</span>':"");
+    container.appendChild(legend);
+    var refs = document.createElement("div"); refs.style.fontSize="11px"; refs.style.color="var(--text-muted)"; refs.style.textAlign="center"; refs.style.maxWidth="300px";
+    refs.textContent = items;
+    container.appendChild(refs);
+  }
+
+  $("btnImprimir").addEventListener("click", function(){ window.print(); });
+
+  $("btnExportCsv").addEventListener("click", async function(){
+    var d = state.empresa && (await cap.db.doc("empresas/"+state.empresa.nit).get()).data();
+    if(!d) return;
+    var rows = [["dimension","score_entrada","score_salida"]];
+    DIMENSIONES.forEach(function(dm){
+      var e = d.entrada.dimensiones[dm.id]||{}; var s = d.salida?(d.salida.dimensiones[dm.id]||{}):{};
+      rows.push([dm.nombre, e.score!=null?e.score:"", s.score!=null?s.score:""]);
+    });
+    var csv = rows.map(function(r){ return r.map(csvCell).join(","); }).join("\n");
+    downloadCsv("ficha_"+d.nit+".csv", csv);
+  });
+
+  function csvCell(v){ v = String(v==null?"":v); if(/[",\n]/.test(v)) v = '"'+v.replace(/"/g,'""')+'"'; return v; }
+  async function downloadCsv(filename, csv){
+    if(!cap.downloads){ toast("La descarga no está disponible en este visor."); return; }
+    try{ await cap.downloads.save({filename: filename, data: csv}); }
+    catch(e){ if(e && e.code!=="declined") toast("No se pudo descargar el archivo."); }
+  }
+
+  // ---------- CONSOLIDADO ----------
+  async function loadConsolidado(){
+    var kpis = $("kpis"); var thead = qs("#tablaConsolidado thead"); var tbody = qs("#tablaConsolidado tbody");
+    var emptyEl = $("consolidadoEmpty");
+    kpis.innerHTML = ""; thead.innerHTML=""; tbody.innerHTML=""; emptyEl.hidden = true;
+    if(!cap.db){ emptyEl.hidden = false; emptyEl.textContent = "Repositorio no disponible en este visor."; return; }
+    var snap;
+    try{ snap = await cap.db.collection("empresas").orderBy("nombre","asc").limit(200).get(); }
+    catch(e){ snap = await cap.db.collection("empresas").limit(200).get(); }
+    var docs = snap.docs.map(function(s){ return s.data(); });
+    if(!docs.length){ emptyEl.hidden = false; return; }
+
+    var conEntrada = docs.filter(function(d){ return d.entrada; });
+    var conSalida = docs.filter(function(d){ return d.salida; });
+    var brechaCount = {};
+    conEntrada.forEach(function(d){ var k=d.entrada.brechaNombre||"—"; brechaCount[k]=(brechaCount[k]||0)+1; });
+    var brechaTop = Object.keys(brechaCount).sort(function(a,b){return brechaCount[b]-brechaCount[a];})[0];
+    var mejoraProm = null;
+    if(conSalida.length){
+      var sum=0,n=0;
+      conSalida.forEach(function(d){
+        var id = d.entrada.brechaId;
+        var e = (d.entrada.dimensiones[id]||{}).score, s = (d.salida.dimensiones[id]||{}).score;
+        if(e!=null && s!=null){ sum += (s-e); n++; }
+      });
+      if(n) mejoraProm = (sum/n).toFixed(1);
+    }
+
+    function kpi(n,l){ return '<div class="kpi"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
+    kpis.innerHTML =
+      kpi(docs.length, "Empresas en el repositorio") +
+      kpi(conEntrada.length+" / "+META_ENTRADA, "Diagnósticos de entrada") +
+      kpi(conSalida.length+" / "+META_SALIDA, "Diagnósticos de salida") +
+      kpi(brechaTop ? esc(brechaTop) : "—", "Brecha más común") +
+      kpi(mejoraProm!=null ? (mejoraProm>0?"+":"")+mejoraProm : "—", "Mejora prom. en brecha priorizada");
+
+    thead.innerHTML = "<tr><th>Empresa</th><th>NIT</th><th>Sector</th><th>Municipio</th><th>Tamaño</th><th>Brecha priorizada (F1)</th><th>Indicador de resultado (F1)</th><th>Fase I</th><th>Aplicó F1</th><th>Fase IV</th><th>Aplicó F4</th></tr>";
+    tbody.innerHTML = docs.map(function(d){
+      return "<tr><td>"+esc(d.nombre)+"</td><td class='mono'>"+esc(d.nit)+(d.dv?'-'+esc(d.dv):'')+"</td><td>"+esc(d.sector||"—")+"</td>"+
+        "<td>"+esc(d.ciudad||"—")+"</td><td>"+esc(d.tamanoEmpresarial||"—")+"</td>"+
+        "<td>"+esc(d.entrada?d.entrada.brechaNombre:"—")+"</td>"+
+        "<td>"+esc(d.entrada?(d.entrada.indicadorResultado||"—"):"—")+"</td>"+
+        "<td>"+(d.entrada?'<span class="badge on">✓ '+esc(d.entrada.fecha)+'</span>':'<span class="badge">pendiente</span>')+"</td>"+
+        "<td>"+esc(d.entrada?(d.entrada.aplicadoPor||"—"):"—")+"</td>"+
+        "<td>"+(d.salida?'<span class="badge good">✓ '+esc(d.salida.fecha)+'</span>':'<span class="badge">pendiente</span>')+"</td>"+
+        "<td>"+esc(d.salida?(d.salida.aplicadoPor||"—"):"—")+"</td></tr>";
+    }).join("");
+
+    $("btnExportConsolidado").onclick = function(){
+      var rows = [["empresa","nit","dv","sector_ciiu","actividad_especifica","municipio","empleados","rango_ingresos_2025","tamano_empresarial","contacto","cargo_contacto","brecha_f1","indicador_resultado_f1","score_f1_prom","fecha_f1","percepcion_empresario_f1","brecha_f4","indicador_resultado_f4","fecha_f4","percepcion_empresario_f4","aplico_f1","aplico_f4"]];
+      docs.forEach(function(d){
+        var scoresF1 = d.entrada ? DIMENSIONES.map(function(dm){ return (d.entrada.dimensiones[dm.id]||{}).score; }).filter(function(v){return v!=null;}) : [];
+        var prom = scoresF1.length ? (scoresF1.reduce(function(a,b){return a+b;},0)/scoresF1.length).toFixed(2) : "";
+        rows.push([d.nombre, d.nit, d.dv||"", d.sector||"", d.actividadEspecifica||"", d.ciudad||"", d.empleados||"", d.rangoIngresos2025||"", d.tamanoEmpresarial||"",
+          d.contacto||"", d.cargoContacto||"", d.entrada?d.entrada.brechaNombre:"", d.entrada?(d.entrada.indicadorResultado||""):"", prom, d.entrada?d.entrada.fecha:"", d.entrada?(d.entrada.percepcionEmpresario||""):"",
+          d.salida?d.salida.brechaNombre:"", d.salida?(d.salida.indicadorResultado||""):"", d.salida?d.salida.fecha:"", d.salida?(d.salida.percepcionEmpresario||""):"", d.entrada?(d.entrada.aplicadoPor||""):"", d.salida?(d.salida.aplicadoPor||""):""]);
+      });
+      var csv = rows.map(function(r){ return r.map(csvCell).join(","); }).join("\n");
+      downloadCsv("nexo_consolidado.csv", csv);
+    };
+  }
+
+  // ---------- METODOLOGIA ----------
+  function renderMetodologia(){
+    var el = $("metodologiaBody");
+    if(el.dataset.rendered) return;
+    el.dataset.rendered = "1";
+    el.innerHTML =
+      '<h3 style="margin-top:0">Objetivo del instrumento</h3>'+
+      '<p>Radar NEXO es un instrumento único, diseñado a la medida del Programa NEXO, que se aplica sin cambios en la Fase I (diagnóstico de entrada) y en la Fase IV (diagnóstico de salida) de cada empresa beneficiaria, de modo que el resultado sea directamente comparable entre línea base y cierre.</p>'+
+      '<p class="hint">Las preguntas guía y su rúbrica, presentadas a continuación, podrán ajustarse en la sesión de coordinación con la firma que resulte seleccionada para la asistencia técnica del Programa NEXO, de modo que el instrumento quede articulado con la intervención que se realizará en las fases siguientes.</p>'+
+
+      '<h3>Fundamentación metodológica</h3>'+
+      '<p>Antes de definir las dimensiones, se revisaron marcos y programas de diagnóstico empresarial y de innovación comparables, para que el instrumento no se basara en un criterio arbitrario sino en metodologías validadas y de uso reconocido:</p>'+
+      '<ul>'+
+        '<li><b>Business Model Canvas</b> (Osterwalder &amp; Pigneur) — para evaluar propuesta de valor y modelo de ingresos.</li>'+
+        '<li><b>Technology Readiness Level — TRL</b> (escala de 9 niveles, origen NASA, adoptada por la Comisión Europea en Horizon Europe) — para ubicar objetivamente la madurez tecnológica del producto o desarrollo.</li>'+
+        '<li><b>Lean Startup / Customer Validation y Product-Market Fit</b> (E. Ries) y el concepto de <b>Market Readiness Level</b> — para evaluar tracción y validación real de mercado más allá de intenciones de compra.</li>'+
+        '<li><b>Criterios de selección de aceleradoras de alto impacto</b> (p. ej. Endeavor, y modelos de evaluación tipo Y Combinator) — para la dimensión de equipo y capacidad de ejecución.</li>'+
+        '<li><b>SME and Entrepreneurship Evaluation Framework</b> de la OCDE — para estructura de costos, control financiero y capacidad de gestión, y para el concepto de vínculos/redes externas como habilitador de escalamiento.</li>'+
+        '<li><b>NTC 5801:2018</b> de ICONTEC — Sistema de Gestión de la Investigación, Desarrollo e Innovación (I+D+i), alineada a la norma internacional <b>ISO 56002</b> — para procesos formales de innovación y protección de la propiedad intelectual.</li>'+
+        '<li><b>Manual de Oslo</b> (OCDE/Eurostat) — como referencia conceptual para diferenciar tipos de innovación (producto, proceso, organizacional, comercial) en la conversación con cada empresa.</li>'+
+      '</ul>'+
+      '<h3>Estructura: 7 dimensiones</h3><p>Cada dimensión combina de 1 a 3 preguntas guía que triangulan el mismo aspecto desde ángulos distintos (percepción, evidencia concreta y validación externa), ordenadas de la más simple a la más exigente para que la conversación avance de lo general a lo específico. Cada pregunta recibe su propio puntaje de 1 a 5 en el momento de la conversación, y el instrumento calcula silenciosamente el <i>estado actual</i> de la dimensión como el promedio de esas respuestas — sin mostrar una conclusión por cada dimensión durante la sesión, para no fragmentar la lectura del diagnóstico; el promedio solo se usa internamente para el índice de priorización y para el análisis estructurado único que se genera al final (ver más abajo). La dimensión de madurez tecnológica usa una sola pregunta, porque la escala TRL ya es, por sí misma, una medición objetiva de 9 niveles: se eliminó la pregunta adicional sobre iteración documentada (no aportaba una señal lo bastante distinta) y, en su lugar, la pregunta de TRL se responde directamente sobre los 5 niveles de la rúbrica — cada botón muestra el número y el texto completo de lo que significa ese nivel (p. ej. "3 — TRL 5-6, validado en entorno representativo"), en vez de un número suelto sin explicación, para que la calificación no dependa de que el consultor recuerde de memoria la escala TRL. Las demás dimensiones mantienen sus preguntas con botones numéricos simples (1 a 5) acompañados de la rúbrica general de la dimensión, visible en la pestaña Metodología. La rúbrica objetiva de 5 niveles asegura que dos consultores distintos lleguen a una calificación consistente y con mejor sustento para decidir dónde enfocar la Fase II (asistencia técnica) y la Fase III (voucher de innovación):</p>'+
+      DIMENSIONES.map(function(d){
+        return '<div class="dimcard"><div class="dimhead"><div><h3 style="margin:0">'+esc(d.nombre)+'</h3>'+
+          '<div class="qlist">'+d.qs.map(function(q){ return '<div class="q">'+esc(q)+'</div>'; }).join('')+'</div>'+
+          '<div class="hint" style="margin-top:3px">Fuente: '+esc(d.fuente)+'</div></div></div>'+
+          '<table style="margin-top:8px"><tbody>'+
+          d.rubrica.map(function(r,i){ return '<tr><td class="mono" style="width:34px">'+(i+1)+'</td><td>'+esc(r)+'</td></tr>'; }).join('')+
+          '</tbody></table></div>';
+      }).join('')+
+
+      '<h3>Contraste cualitativo con la percepción del empresario</h3>'+
+      '<p>Al abrir cada sesión, antes de recorrer la rúbrica, el consultor pregunta al empresario, en sus propias palabras, qué le gustaría resolver o fortalecer en la empresa. La pregunta se formula de manera abierta y conversacional — no como una lista de las 7 dimensiones para que el empresario elija — precisamente para no inducir ni sesgar las calificaciones posteriores de la rúbrica. La respuesta se registra textualmente y queda disponible en la ficha de la empresa como un contraste cualitativo frente a la brecha prioritaria que calcula el instrumento (Teoría de Restricciones): permite ver si la percepción del empresario coincide con el diagnóstico técnico o si difiere, insumo útil para la conversación con la firma de asistencia técnica en Fase II, pero sin reemplazar ni promediarse con la calificación objetiva de las 7 dimensiones.</p>'+
+      '<h3>Priorización de la brecha (Teoría de Restricciones)</h3>'+
+      '<p>Cada dimensión recibe el <i>estado actual</i> de la empresa como el promedio automático de las respuestas a sus preguntas guía (1 a 5 cada una) y el <i>impacto potencial</i> si esa dimensión mejora, calificado por el consultor como un juicio único de 1 a 5. El instrumento calcula un índice (impacto × (6 − estado actual promedio)) y sugiere automáticamente la dimensión con mayor índice como la restricción que más limita el crecimiento — la brecha prioritaria que pide el numeral 2 de la invitación. El empresario, a través del criterio del consultor, siempre tiene la opción de cambiar la brecha sugerida por otra si la necesidad real de la empresa así lo justifica, dejando esa justificación por escrito en el propio instrumento.</p>'+
+      '<h3>Línea base visible al diagnosticar la salida</h3>'+
+      '<p>Al abrir la sesión de Fase IV (diagnóstico de salida) de una empresa que ya tiene diagnóstico de entrada, cada dimensión muestra de forma limpia, justo encima de las preguntas, el nivel que obtuvo esa misma dimensión en la Fase I — sin prellenar las respuestas nuevas, para que la calificación de salida se haga con criterio propio y no simplemente repitiendo la anterior. Al guardar el diagnóstico de salida, la ficha de la empresa arma automáticamente un <b>informe de resultado</b>: la mejora promedio en las 7 dimensiones, el cambio específico en la dimensión que se había priorizado como brecha, y si esa misma dimensión se mantuvo o cambió como brecha priorizada en el cierre — la evidencia de cómo avanzó la empresa tras el acompañamiento del Programa NEXO.</p>'+
+      '<h3>Análisis estructurado del diagnóstico</h3>'+
+      '<p>En lugar de una conclusión suelta por cada una de las 7 dimensiones, la ficha de cada empresa ofrece un botón "Generar análisis" que produce una única síntesis redactada del diagnóstico completo, con estas secciones fijas: diagnóstico general, fortalezas, restricción prioritaria, observaciones de la conversación (las notas del consultor en cada dimensión, integradas en un solo párrafo coherente en vez de listadas una por una), y — cuando aplica — contraste con la percepción del empresario y evolución de Fase I a Fase IV. El texto lo redacta el asistente de IA integrado en el propio artifact, con instrucción explícita de trabajar únicamente con los datos reales de la sesión (los niveles de las 7 dimensiones, la rúbrica correspondiente a cada nivel, la brecha priorizada y su justificación, y las notas y percepciones que el consultor ya registró) y sin inventar cifras, hechos ni recomendaciones que no se deriven de esa información. El análisis queda guardado en el repositorio junto con el resto del diagnóstico, y puede regenerarse en cualquier momento (por ejemplo, después de completar el diagnóstico de salida, para que incluya la comparación con la entrada).</p>'+
+      '<h3>Aplicación en vivo</h3><p>Se aplica en una reunión virtual (Teams) con cada empresa: el consultor recorre las 7 dimensiones en conversación con el representante de la empresa, califica cada pregunta con la rúbrica de 5 niveles y registra notas en tiempo real. Al guardar el diagnóstico, la información queda guardada automáticamente en el repositorio digital (indexado por NIT) y el instrumento abre de inmediato la página de resultado de esa empresa, con la tabla de las 7 dimensiones, el diagrama de radar y la brecha priorizada — la evidencia que puede mostrarse en el momento, sin pasos adicionales.</p>'+
+      '<h3>Repositorio y trazabilidad</h3><p>Cada diagnóstico queda disponible por NIT y nombre de la empresa, permitiendo: (a) generar la ficha individual de cada MiPyme con su diagrama de radar de las 7 dimensiones y la brecha a manejar, (b) recuperar automáticamente la línea base al hacer el diagnóstico de salida en Fase IV, y (c) construir el informe consolidado de las 24 empresas con las brechas priorizadas, hallazgos y el indicador de resultado del programa.</p>'+
+      '<h3>Valor agregado</h3><p>El instrumento genera, para cada empresa, un contexto breve del sector económico al que pertenece, como insumo adicional para priorizar la conversación con la firma de asistencia técnica en Fase II.</p>';
+  }
+
+  function initHeroLogos(){
+    var host = $("heroLogos");
+    if(!host) return;
+    var scala = document.querySelector(".logo-scala");
+    var ccb = document.querySelector(".logo-ccb");
+    if(scala){
+      var i1 = document.createElement("img");
+      i1.src = scala.src; i1.alt = scala.alt || "Scala Industries Group";
+      host.appendChild(i1);
+    }
+    if(scala && ccb){
+      var x = document.createElement("span");
+      x.className = "hero-logo-x"; x.textContent = "×";
+      host.appendChild(x);
+    }
+    if(ccb){
+      var chip = document.createElement("div"); chip.className = "hero-logo-ccb-chip";
+      var i2 = document.createElement("img");
+      i2.src = ccb.src; i2.alt = ccb.alt || "Cámara de Comercio de Bucaramanga";
+      chip.appendChild(i2);
+      host.appendChild(chip);
+    }
+  }
+
+  boot();
+})();
+</script>
+</body></html>
