@@ -17,7 +17,7 @@ const CORS = {
 };
 
 const MAX_PROMPT_CHARS = 24000;
-const MAX_TOKENS = 1600;
+const MAX_TOKENS = 4000;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
